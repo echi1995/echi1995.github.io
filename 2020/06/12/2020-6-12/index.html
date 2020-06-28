@@ -664,7 +664,7 @@ public void test03() throws IOException {
 
     inChannel.close();
     outChannel.close();
-}</code></pre><p>**分散(Scatter)聚集(Gather)<br>分散读取(Scattering Reads): 将通道中的数据分散到多核缓冲区中<br>聚集写入(Gathering Writes): 将多个缓冲区中的数据聚集到通道中</p>
+}</code></pre><p><strong>分散(Scatter)聚集(Gather)</strong><br>分散读取(Scattering Reads): 将通道中的数据分散到多核缓冲区中<br>聚集写入(Gathering Writes): 将多个缓冲区中的数据聚集到通道中</p>
 <pre><code>
 // 分散和聚集
 @Test
@@ -724,7 +724,7 @@ public void test06() throws CharacterCodingException {
     System.out.println(cBuf2.toString());
 
 }
-</code></pre><h3 id="阻塞与非阻塞"><a href="#阻塞与非阻塞" class="headerlink" title="阻塞与非阻塞"></a>阻塞与非阻塞</h3><p>**一个阻塞socket</p>
+</code></pre><h2 id="阻塞与非阻塞"><a href="#阻塞与非阻塞" class="headerlink" title="阻塞与非阻塞"></a>阻塞与非阻塞</h2><p><strong>一个阻塞socket</strong></p>
 <pre><code>// 客户端向服务端发送一个文件
 @Test
 public void client() throws IOException {
@@ -774,7 +774,7 @@ public void server() throws IOException {
     socketChannel.close();
     serverSocketChannel.close();
 
-}</code></pre><p>**阻塞式,带回应socket</p>
+}</code></pre><p><strong>阻塞式,带回应socket</strong></p>
 <pre><code>
 @Test
 public void client() throws IOException {
@@ -837,7 +837,7 @@ public void server() throws IOException {
     sChannel.close();
     outChannel.close();
     ssChannel.close();
-}</code></pre><p>**非阻塞模式</p>
+}</code></pre><p><strong>非阻塞模式</strong></p>
 <p>选择器(Selector): 选择器是SelectableChannel对象的多路复用器, Selector可以同时监控多个SelectableChannel的IO状况, 也就是说, 利用Selector可使一个单独的线程管理多个Channel. Selector是非阻塞IO的核心.</p>
 <p>选择器的应用:</p>
 <p>创建Selector: 通过调用Selector.open()方法创建一个Selector.<br>向选择器注册通道: SelectableChannel.register(Selector sel, int ops);<br>当调用register(Selector sel, int ops)将通道注册选择器时, 选择器对通道的监听事件, 需要通过第二个参数ops指定.<br>可以监听的事件类型(可使用SelectionKey的四个常量表示):<br>    - 读: SelectionKey.OP_READ(1)<br>    - 写: SelectionKey.OP_WRITE(4)<br>    - 连接: SelectionKey.OP_CONNECT(8)<br>    - 接收: SelectionKey.OP_ACCEPT(16)<br>若注册时不止监听一个事件, 则可以使用”位或”操作符连接<br>    &gt; int interestSet = SelectionKey.OP_READ | SelectionKey.OP_WRITE; </p>
@@ -917,7 +917,7 @@ public void server() throws IOException {
             it.remove();
         }
     }
-}</code></pre><h3 id="管道-Pipe"><a href="#管道-Pipe" class="headerlink" title="管道(Pipe):"></a>管道(Pipe):</h3><p>Java NIO管道是两个线程之间的单向数据连接. Pipe有一个source通道和一个sink通道. 数据会被写到sink通道, 从source通道读取.</p>
+}</code></pre><h2 id="管道-Pipe"><a href="#管道-Pipe" class="headerlink" title="管道(Pipe):"></a>管道(Pipe):</h2><p>Java NIO管道是两个线程之间的单向数据连接. Pipe有一个source通道和一个sink通道. 数据会被写到sink通道, 从source通道读取.</p>
 <pre><code>@Test
 public void test1() throws IOException {
     // 1. 获取管道
@@ -1138,30 +1138,31 @@ public void test1() throws IOException {
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
-            </div>
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2020/06/12/2020-6-12/">
+                <a href="/2020/06/28/2020-06-28/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="NIO API">
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="JDK动态代理和CGLIB动态代理">
                         
-                        <span class="card-title">NIO API</span>
+                        <span class="card-title">JDK动态代理和CGLIB动态代理</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            NIONIO简介Java NIO (New IO  /  Non Blocking IO)是从Java1.4版本开始引入的一个新的IO API, 可以的替代标准的Java IO API.NIO与原来的IO有同样的作用和目的, 但是使用的方式
+                            JDK动态代理和CGLIB动态代理代理代理模式是一种常用的设计模式, 代表性的有Spring中的AOP.
+代理模式就像是一个中介一样, 以租房为例.
+房东作为被代理类, 租客作为调用方, 中介就是租客和房东中间的代理. 在中介的操作下, 租
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-06-12
-                            </span>
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-06-28
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fa fa-bookmark fa-fw icon-category"></i>
@@ -1174,12 +1175,11 @@ public void test1() throws IOException {
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/java-nio/" target="_blank">
-                        <span class="chip bg-color">java - nio</span>
+                    <a href="/tags/java-proxy/" target="_blank">
+                        <span class="chip bg-color">java - proxy</span>
                     </a>
                     
                 </div>
@@ -1353,7 +1353,7 @@ public void test1() throws IOException {
             <br>
             
             &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">48.8k</span>&nbsp;字
+                class="white-color">50.4k</span>&nbsp;字
             
             
             
