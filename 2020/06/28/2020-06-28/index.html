@@ -734,7 +734,8 @@
 <p>输出:</p>
 <pre><code>开始cglib代理
 teachDao rent
-结束cglib代理</code></pre><p>可以看到, <code>enhancer.setSuperclass(TeacherDao.class);</code>设置的是SuperClass, 而调用中<code>Object invoke = methodProxy.invokeSuper(o, objects);</code>也是使用<code>invokeSuper</code>的方式调用的.</p>
+结束cglib代理</code></pre><p>可以看到, <code>enhancer.setSuperclass(TeacherDao.class);</code>设置的是SuperClass, </p>
+<p>而调用中<code>Object invoke = methodProxy.invokeSuper(o, objects);</code>也是使用<code>invokeSuper</code>的方式调用的.</p>
 <p>因此CGLIB生成的代理类是被代理类的子类.</p>
 <p>如果该被代理类被声明为final, 就无法使用CGLIB生成代理类了.</p>
 
@@ -937,32 +938,38 @@ teachDao rent
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
-            </div>
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2020/06/28/2020-06-28/">
+                <a href="/2020/06/29/2020-06-29/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="JDK动态代理和CGLIB动态代理">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="多线程与高并发(一)">
                         
-                        <span class="card-title">JDK动态代理和CGLIB动态代理</span>
+                        <span class="card-title">多线程与高并发(一)</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            JDK动态代理和CGLIB动态代理代理代理模式是一种常用的设计模式, 代表性的有Spring中的AOP.
-代理模式就像是一个中介一样, 以租房为例.
-房东作为被代理类, 租客作为调用方, 中介就是租客和房东中间的代理. 在中介的操作下, 租
+                            多线程与高并发(一)程序, 进程, 线程, 纤程(协程)
+程序
+程序就是硬盘上保存的可执行的代码
+进程
+程序开始执行, 硬盘上的代码加载到内存中就叫进程
+线程
+线程就是进程调度的最小单位
+纤程(协程)
+用户态的线程
+ThreadThread
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-06-28
-                            </span>
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-06-29
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fa fa-bookmark fa-fw icon-category"></i>
@@ -975,12 +982,11 @@ teachDao rent
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/java-proxy/" target="_blank">
-                        <span class="chip bg-color">java - proxy</span>
+                    <a href="/tags/java-thread/" target="_blank">
+                        <span class="chip bg-color">java - thread</span>
                     </a>
                     
                 </div>
@@ -1151,7 +1157,7 @@ teachDao rent
             <br>
             
             &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">50.4k</span>&nbsp;字
+                class="white-color">54k</span>&nbsp;字
             
             
             
