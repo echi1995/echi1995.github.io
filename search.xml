@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>排序算法的总结</title>
+      <link href="/2020/07/03/2020-07-03/"/>
+      <url>/2020/07/03/2020-07-03/</url>
+      
+        <content type="html"><![CDATA[<h2 id="排序算法的总结"><a href="#排序算法的总结" class="headerlink" title="排序算法的总结"></a>排序算法的总结</h2><table><thead><tr><th></th><th>时间复杂度</th><th>额外空间复杂度</th><th>稳定性</th></tr></thead><tbody><tr><td>选择排序</td><td>O(N^2)</td><td>O(1)</td><td>无</td></tr><tr><td>冒泡排序</td><td>O(N^2)</td><td>O(1)</td><td>有</td></tr><tr><td>插入排序</td><td>O(N^2)</td><td>O(1)</td><td>有</td></tr><tr><td>归并排序</td><td>O(N*logN)</td><td>O(N)</td><td>有</td></tr><tr><td>随机快排</td><td>O(N*logN)</td><td>O(logN)</td><td>无</td></tr><tr><td>堆排序</td><td>O(N*logN)</td><td>O(1)</td><td>无</td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td>计数排序</td><td>O(N)</td><td>O(M)</td><td>有</td></tr><tr><td>基数排序</td><td>O(N)</td><td>O(N)</td><td>有</td></tr></tbody></table><ol><li>不基于比较的排序, 对样本数据有严格要求, 不易改写</li><li>基于比较的排序, 只要规定好两个样本怎么比大小就可以直接复用</li><li>基于比较的排序, 时间复杂度的极限是 O(N*logN)</li><li>时间复杂度 O(N*logN) , 额外空间复杂度低于 O(N), 且稳定的基于比较的排序是不存在的.</li><li>为了绝对的速度选快排, 为了省空间选堆排, 为了稳定性选归并.</li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学而不思则罔 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> java - algorithm </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>多线程与高并发(二)</title>
       <link href="/2020/06/30/2020-06-30/"/>
       <url>/2020/06/30/2020-06-30/</url>
