@@ -410,14 +410,14 @@ Serial和Parallel都是无法和工作线程同时相应, 必须垃圾收集结�
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        2k
+                        2.4k
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        7 分
+                        8 分
                     </div>
                     
                 
@@ -607,7 +607,77 @@ Serial和Parallel都是无法和工作线程同时相应, 必须垃圾收集结�
 </li>
 </ul>
 <h3 id="CMS-1"><a href="#CMS-1" class="headerlink" title="CMS"></a>CMS</h3><ul>
-<li>-XX:+CMS</li>
+<li><p>-XX:+UseConcMarkSweepGC</p>
+<p>使用CMSGC</p>
+</li>
+<li><p>-XX:ParallelCMSThreads </p>
+<p>CMS线程数量</p>
+</li>
+<li><p>-XX:CMSInitiatingOccupancyFraction </p>
+<p>使用多少比例的老年代后开始CMS收集，默认是68%(近似值)，如果频繁发生SerialOld卡顿，应该调小，（频繁CMS回收）</p>
+</li>
+<li><p>-XX:+UseCMSCompactAtFullCollection </p>
+<p>在CMS时进行压缩</p>
+</li>
+<li><p>-XX:CMSFullGCsBeforeCompaction </p>
+<p>多少次CMS之后进行压缩</p>
+</li>
+<li><p>-XX:+CMSClassUnloadingEnabled</p>
+</li>
+<li><p>-XX:CMSInitiatingPermOccupancyFraction </p>
+<p>达到什么比例时进行Perm回收</p>
+</li>
+<li><p>GCTimeRatio </p>
+<p>设置GC时间占用程序运行时间的百分比</p>
+</li>
+<li><p>-XX:MaxGCPauseMillis </p>
+<p>停顿时间，是一个建议时间，GC会尝试用各种手段达到这个时间，比如减小年轻代</p>
+</li>
+</ul>
+<h3 id="Parallel"><a href="#Parallel" class="headerlink" title="Parallel"></a>Parallel</h3><ul>
+<li><p>-XX:SurvivorRatio</p>
+<p>调整Young区比例</p>
+</li>
+<li><p>-XX:PreTenureSizeThreshold </p>
+<p>大对象到底多大</p>
+</li>
+<li><p>-XX:MaxTenuringThreshold</p>
+</li>
+<li><p>-XX:+ParallelGCThreads </p>
+<p>并行收集器的线程数，同样适用于CMS，一般设为和CPU核数相同</p>
+</li>
+<li><p>-XX:+UseAdaptiveSizePolicy </p>
+<p>自动选择各区大小比例</p>
+</li>
+</ul>
+<h3 id="G1-1"><a href="#G1-1" class="headerlink" title="G1"></a>G1</h3><ul>
+<li><p>-XX:+UseG1GC</p>
+</li>
+<li><p>-XX:MaxGCPauseMillis </p>
+<p>建议值，G1会尝试调整Young区的块数来达到这个值</p>
+</li>
+<li><p>-XX:GCPauseIntervalMillis </p>
+<p>GC的间隔时间</p>
+</li>
+<li><p>-XX:+G1HeapRegionSize </p>
+<p>分区大小，建议逐渐增大该值，1 2 4 8 16 32。 随着size增加，垃圾的存活时间更长，GC间隔更长，但每次GC的时间也会更长 </p>
+<p>ZGC做了改进（动态区块大小）</p>
+</li>
+<li><p>G1NewSizePercent </p>
+<p>新生代最小比例，默认为5%</p>
+</li>
+<li><p>G1MaxNewSizePercent</p>
+<p> 新生代最大比例，默认为60%</p>
+</li>
+<li><p>GCTimeRatio </p>
+<p>GC时间建议比例，G1会根据这个值调整堆空间</p>
+</li>
+<li><p>ConcGCThreads </p>
+<p>线程数量</p>
+</li>
+<li><p>InitiatingHeapOccupancyPercent </p>
+<p>启动G1的堆空间占用比例</p>
+</li>
 </ul>
 
             </div>
@@ -809,31 +879,29 @@ Serial和Parallel都是无法和工作线程同时相应, 必须垃圾收集结�
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
-            </div>
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2020/07/12/2020-07-12/">
+                <a href="/2020/07/13/2020-07-13/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="深入理解JVM(三)">
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="Redis(一)">
                         
-                        <span class="card-title">深入理解JVM(三)</span>
+                        <span class="card-title">Redis(一)</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            深入理解JVM(三)GC算法CMSCMS在任何一个JAVA版本中都不是默认的垃圾回收器, 但是同时他又是一个非常重要的GC.
-Serial和Parallel都是无法和工作线程同时相应, 必须垃圾收集结束才可以进行工作线程的继续. 这就导致了
+                            (一)Redis(一)为什么要使用Redis?首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-12
-                            </span>
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-13
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fa fa-bookmark fa-fw icon-category"></i>
@@ -846,12 +914,11 @@ Serial和Parallel都是无法和工作线程同时相应, 必须垃圾收集结�
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/java-jvm/" target="_blank">
-                        <span class="chip bg-color">java - jvm</span>
+                    <a href="/tags/java-io/" target="_blank">
+                        <span class="chip bg-color">java - io</span>
                     </a>
                     
                 </div>
@@ -1025,7 +1092,7 @@ Serial和Parallel都是无法和工作线程同时相应, 必须垃圾收集结�
             <br>
             
             &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">80.7k</span>&nbsp;字
+                class="white-color">84.7k</span>&nbsp;字
             
             
             

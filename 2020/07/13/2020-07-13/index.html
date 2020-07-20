@@ -4,11 +4,8 @@
 
 <head><meta name="generator" content="Hexo 3.9.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="在使用@Async情况下，子线程访问父线程中@RequestScope注解修饰的对象, 扣哥哥的博客">
-    <meta name="description" content="问题描述：
-在开发过程中，发现使用@Async修饰的方法，一旦使用到@RequestScope修饰的对象时，就会出现异常。大致意思是当前线程没有request scope。  
-
-搜索过程:在搜索问题的过程中，发现似乎所有的线索都在指向：H">
+    <meta name="keywords" content="Redis(一), 扣哥哥的博客">
+    <meta name="description" content="(一)Redis(一)为什么要使用Redis?首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -16,7 +13,7 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>在使用@Async情况下，子线程访问父线程中@RequestScope注解修饰的对象 | 扣哥哥的博客</title>
+    <title>Redis(一) | 扣哥哥的博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
@@ -264,13 +261,13 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/14.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
     <div class="container">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
                     <div class="description center-align post-title">
-                        在使用@Async情况下，子线程访问父线程中@RequestScope注解修饰的对象
+                        Redis(一)
                     </div>
                 </div>
             </div>
@@ -381,12 +378,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/java/" target="_blank">
-                                <span class="chip bg-color">java</span>
-                            </a>
-                        
-                            <a href="/tags/spring/" target="_blank">
-                                <span class="chip bg-color">spring</span>
+                            <a href="/tags/java-io/" target="_blank">
+                                <span class="chip bg-color">java - io</span>
                             </a>
                         
                     </div>
@@ -397,12 +390,8 @@
                     <div class="post-cate">
                         <i class="fa fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/java/" class="post-category" target="_blank">
-                                java
-                            </a>
-                        
-                            <a href="/categories/java/解决方案/" class="post-category" target="_blank">
-                                解决方案
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                学而不思则罔
                             </a>
                         
                     </div>
@@ -413,21 +402,21 @@
             <div class="post-info">
                 <div class="post-date info-break-policy">
                     <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2019-07-14
+                    2020-07-13
                 </div>
 
                 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        782
+                        3.6k
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        3 分
+                        16 分
                     </div>
                     
                 
@@ -443,172 +432,349 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="问题描述："><a href="#问题描述：" class="headerlink" title="问题描述："></a>问题描述：</h2><blockquote>
-<p>在开发过程中，发现使用@Async修饰的方法，一旦使用到@RequestScope修饰的对象时，就会出现异常。<br>大致意思是当前线程没有request scope。  </p>
+                <h1 id="一"><a href="#一" class="headerlink" title="(一)"></a>(一)</h1><h1 id="Redis-一"><a href="#Redis-一" class="headerlink" title="Redis(一)"></a>Redis(一)</h1><h2 id="为什么要使用Redis"><a href="#为什么要使用Redis" class="headerlink" title="为什么要使用Redis?"></a>为什么要使用Redis?</h2><p>首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘IO占满的情况, 这种情况就是数据库的瓶颈.</p>
+<p>那么相比磁盘, 内存的速度要快很多, 磁盘的寻址速度是ms级, 而内存的寻址速度是ns级, 内存的瓶颈也远高于磁盘.</p>
+<p>那么将数据库整个放到内存中如何?</p>
+<p>但是内存的价格也远比磁盘贵, 而且内存大了以后,所配套的CPU, 网卡全都需要随之定制. </p>
+<p>那么能否有一种方案既便宜又绕开磁盘瓶颈呢?</p>
+<p>于是就有了缓存, 将一部分数据缓存到内存中, 用的时候快速读取, 当缓存中没有的时候才去磁盘中取.</p>
+<p><a href="https://db-engines.com/en/ranking" target="_blank" rel="noopener">数据库引擎排行</a></p>
+<p>这个页面有数据库的排行信息.</p>
+<h3 id="缓存的选择"><a href="#缓存的选择" class="headerlink" title="缓存的选择"></a>缓存的选择</h3><p>缓存可以选择<code>memory cache</code>或<code>redis</code>. 那他们有什么区别呢</p>
+<p>memory cache和redis都是键值对结构, 但是他们最大的区别就是 memory cache没有类型的概念.</p>
+<p>在memory cache中, 想要修改一个value必须将value拿到客户端, 修改之后再set回去. 而redis提供了对数据的直接操作.</p>
+<h2 id="Redis的安装"><a href="#Redis的安装" class="headerlink" title="Redis的安装"></a>Redis的安装</h2><ol>
+<li><p>打开redis官网, 找到redis最新的稳定版</p>
+<p><img src="/2020/07/13/2020-07-13/redis%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80.jpg" alt></p>
+</li>
+<li><p>复制redis下载链接</p>
+</li>
+<li><p>下载redis</p>
+<blockquote>
+<p>wget <a href="http://download.redis.io/releases/redis-6.0.5.tar.gz" target="_blank" rel="noopener">http://download.redis.io/releases/redis-6.0.5.tar.gz</a></p>
+<p>// 这里的链接就是第二步中复制的链接</p>
 </blockquote>
-<h2 id="搜索过程"><a href="#搜索过程" class="headerlink" title="搜索过程:"></a>搜索过程:</h2><p>在搜索问题的过程中，发现似乎所有的线索都在指向：<a href="https://stackoverflow.com/questions/23732089/how-to-enable-request-scope-in-async-task-executor" target="_blank" rel="noopener">How to enable request scope in async task executor</a><br>帖子描述问题和我碰到的问题一模一样。既然找到同病相怜的人，那就看怎么解决的吧。于是： </p>
-<pre><code>public class ContextAwarePoolExecutor extends ThreadPoolTaskExecutor {
-    @Override
-    public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task) {
-        return super.submit(new ContextAwareCallable(task, RequestContextHolder.currentRequestAttributes()));
-    }
+</li>
+<li><p>解压redis</p>
+<blockquote>
+<p>tar xf redis-6.0.5.tar.gz</p>
+</blockquote>
+</li>
+<li><p>进入解压后的redis目录</p>
+<blockquote>
+<p>vi README.md</p>
+<p>// 可以看到, README中写到, </p>
+<p>Building Redis</p>
+<p>It is as simple as:</p>
+<p>% make</p>
+</blockquote>
+</li>
+<li><p>退出README.md</p>
+</li>
+<li><p>在redis目录</p>
+<blockquote>
+<p>make</p>
+</blockquote>
+</li>
+<li><p>如果上一步提示安装gcc, 按照提示安装之后 执行make distclean删除之前生成的文件.</p>
+</li>
+<li><p>执行完会输出 “Hint: It’s a good idea to run ‘make test’ ; “ 可以测试一下</p>
+</li>
+<li><p>之后进入src目录</p>
+<blockquote>
+<p>cd src</p>
+</blockquote>
+</li>
+<li><p>可以看到, 已经有了redis-server</p>
+</li>
+<li><p>启动redis-server</p>
+<blockquote>
+<p> ./redis-server</p>
+</blockquote>
+</li>
+<li><p>但是在服务器上总不至于每次重启都手动开启redis, 因此要把redis做成服务.</p>
+</li>
+<li><p>README.md中写了, 使用make install将redis命令装入/usr/local/bin中</p>
+<blockquote>
+<p>make install</p>
+</blockquote>
+</li>
+<li><p>并且在utils中, 有一个install_server.sh, 这个仅提供给linux使用, mac不好使</p>
+<blockquote>
+<p>cd utils</p>
+<p>./install_server.sh</p>
+<p>// 可能会提示</p>
+<p>This systems seems to use systemd.</p>
+<p>Please take a look at the provided example service unit files in this directory, and adapt and install them. Sorry!</p>
+<p>在install_server.sh中将这部分注释掉即可</p>
+</blockquote>
+</li>
+<li><p>运行中出现</p>
+<blockquote>
+<p>Please select the redis port for this instance: [6379] 这是选择这个服务器启动的端口</p>
+<p>Please select the redis config file name [/etc/redis/6379.conf] 选择配置文件</p>
+<p>Please select the redis log file name [/var/log/redis_6379.log] 配置日志地址</p>
+<p>Please select the data directory for this instance [/var/lib/redis/6379] 选择redis的数据目录</p>
+<p>Please select the redis executable path [/usr/local/bin/redis-server] 选择redis可执行文件的配置</p>
+</blockquote>
+</li>
+<li><p>全部配置好之后, 再一次问你 Is this ok?  直接回车确定</p>
+</li>
+<li><p>提示Installation successful!</p>
+</li>
+<li><p><code>cd /etc/init.d</code>查看, 确实多个redis_6379这个启动脚本</p>
+</li>
+<li><p>使用 <code>service redis_6379 status</code>查看redis状态</p>
+</li>
+<li><p>这样就在6379端口成功的配置了一个redis. redis可以起多个, 只要端口选择另外一个就可以了.</p>
+</li>
+</ol>
+<h2 id="Redis为什么快"><a href="#Redis为什么快" class="headerlink" title="Redis为什么快"></a>Redis为什么快</h2><ol>
+<li><p>因为Redis首先是基于内存的, </p>
+</li>
+<li><p>redis是k-v结构的, 类似于HashMap, 查找和操作的时间复杂度都是O(1)</p>
+</li>
+<li><p>单线程, 减少了不必要的线程上下文切换和竞争, 不用考虑锁</p>
+<blockquote>
+<p>指的是处理网络请求的时候只有单线程, 实际整个redis肯定是有多个线程的.</p>
+</blockquote>
+</li>
+<li><p>采用了多路复用的IO模型</p>
+</li>
+</ol>
+<h3 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h3><p>为什么要多路复用?</p>
+<p><strong>阻塞IO</strong></p>
+<p>如果是阻塞IO, 一个线程去处理一个连接, 同时有1000个连接就要起1000个线程去接收数据, 这个消耗是不可接受的.</p>
+<p>这个线程在等待数据的时候只能进行阻塞等待, 不能做其他的事, 而线程的成本又是很高的, 所以需要减少线程.</p>
+<p><strong>非阻塞IO</strong></p>
+<p>如果只起一个线程, 这个线程去轮询的查看每个连接是否发送数据, 当连接就绪的时候读取数据.</p>
+<p>这样是减少了线程数, 但是线程每次去访问连接都是用户态到内核态的转变, 也是非常消耗资源的.</p>
+<p>而且存在一个将数据从连接读入的过程.</p>
+<p><strong>多路复用</strong></p>
+<p>将轮询这个操作交给内核处理, 当连接就绪的时候, 由内核通知相应的进程进行处理, 并使用共享内存进行数据的共享, 节省了拷贝数据的消耗.</p>
+<h2 id="Redis的使用"><a href="#Redis的使用" class="headerlink" title="Redis的使用"></a>Redis的使用</h2><p>在前面, 装好了redis, 并且装成了服务, 那么可以直接<code>redis-cli</code>启动redis客户端.</p>
+<p>redis-cli默认连接的是6379客户端, 可以通过参数修改连接的host和port等各种参数,</p>
+<p>连接到redis之后, 可以使用help查看帮助</p>
+<h3 id="string"><a href="#string" class="headerlink" title="string"></a>string</h3><blockquote>
+<p> help @string</p>
+</blockquote>
+<pre><code>  APPEND key value
+  summary: Append a value to a key
+  since: 2.0.0
 
-    @Override
-    public &lt;T&gt; ListenableFuture&lt;T&gt; submitListenable(Callable&lt;T&gt; task) {
-        return super.submitListenable(new ContextAwareCallable(task, RequestContextHolder.currentRequestAttributes()));
-    }
-}
+  BITCOUNT key [start end]
+  summary: Count set bits in a string
+  since: 2.6.0
 
-public class ContextAwareCallable&lt;T&gt; implements Callable&lt;T&gt; {
-    private Callable&lt;T&gt; task;
-    private RequestAttributes context;
+  BITFIELD key [GET type offset] [SET type offset value] [INCRBY type offset in
+rement] [OVERFLOW WRAP|SAT|FAIL]
+  summary: Perform arbitrary bitfield integer operations on strings
+  since: 3.2.0
 
-    public ContextAwareCallable(Callable&lt;T&gt; task, RequestAttributes context) {
-        this.task = task;
-        this.context = context;
-    }
+  BITOP operation destkey key [key ...]
+  summary: Perform bitwise operations between strings
+  since: 2.6.0
 
-    @Override
-    public T call() throws Exception {
-        if (context != null) {
-            RequestContextHolder.setRequestAttributes(context);
-        }
+  BITPOS key bit [start] [end]
+  summary: Find first bit set or clear in a string
+  since: 2.8.7
 
-        try {
-            return task.call();
-        } finally {
-            RequestContextHolder.resetRequestAttributes();
-        }
-    }
-}
+  DECR key
+  summary: Decrement the integer value of a key by one
+  since: 1.0.0
 
-@Configuration
-public class ExecutorConfig extends AsyncConfigurerSupport {
-    @Override
-    @Bean
-    public Executor getAsyncExecutor() {
-        return new ContextAwarePoolExecutor();
-    }
-}</code></pre><p> __ 结果并不可行，似乎是因为版本更新，这个方法已经行不通了。 __</p>
-<p>随后不甘心的点击<code>RequestContextHolder</code>里面的代码查看。<br>发现RequestContextHodler里有两个方法：</p>
-<pre><code>   public static void setRequestAttributes(RequestAttributes attributes) {
-        setRequestAttributes(attributes, false);
-    }
+  DECRBY key decrement
+  summary: Decrement the integer value of a key by the given number
+  since: 1.0.0
 
-    public static void setRequestAttributes(RequestAttributes attributes, boolean inheritable) {
-        if (attributes == null) {
-            resetRequestAttributes();
-        }
-        else {
-            if (inheritable) {
-                inheritableRequestAttributesHolder.set(attributes);
-                requestAttributesHolder.remove();
-            }
-            else {
-                requestAttributesHolder.set(attributes);
-                inheritableRequestAttributesHolder.remove();
-            }
-        }
-    }</code></pre><p>可以看到,其中setRequestAttributes(RequestAttributes attributes, boolean inheritable)是取不一样的AttributesHolder.<br>于是我尝试将代码改成</p>
-<pre><code>public class ContextAwareCallable&lt;T&gt; implements Callable&lt;T&gt; {
-    private Callable&lt;T&gt; task;
-    private RequestAttributes context;
+  GET key
+  summary: Get the value of a key
+  since: 1.0.0
 
-    public ContextAwareCallable(Callable&lt;T&gt; task, RequestAttributes context) {
-        this.task = task;
-        this.context = context;
-    }
+  GETBIT key offset
+  summary: Returns the bit value at offset in the string value stored at key
+  since: 2.2.0
 
-    @Override
-    public T call() throws Exception {
-        if (context != null) {
-            RequestContextHolder.setRequestAttributes(context, true);
-        }
+  GETRANGE key start end
+  summary: Get a substring of the string stored at a key
+  since: 2.4.0
 
-        try {
-            return task.call();
-        } finally {
-            RequestContextHolder.resetRequestAttributes();
-        }
-    }
-}</code></pre><p>重启测试… …<br>结果依然是失败的.<br>之后,我又注意到</p>
-<pre><code>try {
-    return task.call();
-} finally {
-    RequestContextHolder.resetRequestAttributes();
-}</code></pre><p>在finally中调用了<code>RequestContextHolder.resetRequestAttributes();</code>.<br>其在RequestContextHolder中对应的源码是:</p>
-<pre><code>public static void resetRequestAttributes() {
-    requestAttributesHolder.remove();
-    inheritableRequestAttributesHolder.remove();
-}</code></pre><p>直接将RequestAttributesHolder给清了. 怒从心头起,恶向胆边生,不清了!<br>将之注释掉.</p>
-<pre><code>
-public class ContextAwareCallable&lt;T&gt; implements Callable&lt;T&gt; {
-    private Callable&lt;T&gt; task;
-    private RequestAttributes context;
+  GETSET key value
+  summary: Set the string value of a key and return its old value
+  since: 1.0.0
 
-    public ContextAwareCallable(Callable&lt;T&gt; task, RequestAttributes context) {
-        this.task = task;
-        this.context = context;
-    }
+  INCR key
+  summary: Increment the integer value of a key by one
+  since: 1.0.0
 
-    @Override
-    public T call() throws Exception {
-        if (context != null) {
-            RequestContextHolder.setRequestAttributes(context, true);
-        }
+  INCRBY key increment
+  summary: Increment the integer value of a key by the given amount
+  since: 1.0.0
 
-        try {
-            return task.call();
-        } finally {
-            // RequestContextHolder.resetRequestAttributes();
-        }
-    }
-}  </code></pre><p>重启测试… …<br>成了!</p>
-<h2 id="最终代码"><a href="#最终代码" class="headerlink" title="最终代码"></a>最终代码</h2><pre><code>public class ContextAwarePoolExecutor extends ThreadPoolTaskExecutor {
-    @Override
-    public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task) {
-        return super.submit(new ContextAwareCallable(task, RequestContextHolder.currentRequestAttributes()));
-    }
+  INCRBYFLOAT key increment
+  summary: Increment the float value of a key by the given amount
+  since: 2.6.0
 
-    @Override
-    public &lt;T&gt; ListenableFuture&lt;T&gt; submitListenable(Callable&lt;T&gt; task) {
-        return super.submitListenable(new ContextAwareCallable(task, RequestContextHolder.currentRequestAttributes()));
-    }
-}
+  MGET key [key ...]
+  summary: Get the values of all the given keys
+  since: 1.0.0
 
-public class ContextAwareCallable&lt;T&gt; implements Callable&lt;T&gt; {
-    private Callable&lt;T&gt; task;
-    private RequestAttributes context;
+  MSET key value [key value ...]
+  summary: Set multiple keys to multiple values
+  since: 1.0.1
 
-    public ContextAwareCallable(Callable&lt;T&gt; task, RequestAttributes context) {
-        this.task = task;
-        this.context = context;
-    }
+  MSETNX key value [key value ...]
+  summary: Set multiple keys to multiple values, only if none of the keys exist
+  since: 1.0.1
 
-    @Override
-    public T call() throws Exception {
-        if (context != null) {
-            RequestContextHolder.setRequestAttributes(context, true);
-        }
+  PSETEX key milliseconds value
+  summary: Set the value and expiration in milliseconds of a key
+  since: 2.6.0
 
-        try {
-            return task.call();
-        } finally {
-            // RequestContextHolder.resetRequestAttributes();
-        }
-    }
-}
+  SET key value [EX seconds] [PX milliseconds] [NX|XX]
+  summary: Set the string value of a key
+  since: 1.0.0
 
-@Configuration
-public class ExecutorConfig extends AsyncConfigurerSupport {
-    @Override
-    @Bean
-    public Executor getAsyncExecutor() {
-        return new ContextAwarePoolExecutor();
-    }
-}</code></pre><p>__ 该解决过程仅解决了@Async注释的方法调用到了@RequestScope修饰的对象.并没有测试过是否会出现其他问题.仅保存为自己复习所用. __</p>
-<hr>
-<p>2019年8月10日13:01:00<br>最近老大看了一下spring文档,跟我说了一下我最后注释的那个reset方法,感觉还是要放开. 目前还没有改动,等到实际改了再更新.</p>
+  SETBIT key offset value
+  summary: Sets or clears the bit at offset in the string value stored at key
+  since: 2.2.0
+
+  SETEX key seconds value
+  summary: Set the value and expiration of a key
+  since: 2.0.0
+
+  SETNX key value
+  summary: Set the value of a key, only if the key does not exist
+  since: 1.0.0
+
+  SETRANGE key offset value
+  summary: Overwrite part of a string at key starting at the specified offset
+  since: 2.2.0
+
+  STRLEN key
+  summary: Get the length of the value stored in a key
+  since: 2.2.0</code></pre><p>string可以面向 字符串, 数值, 位图</p>
+<p><strong>字符串</strong></p>
+<ul>
+<li><p>set </p>
+<blockquote>
+<p>  SET key value [EX seconds] [PX milliseconds] [NX|XX]<br>  summary: Set the string value of a key<br>  since: 1.0.0<br>  group: string </p>
+<p>  set key value 后面可以加过期时间, 还可以加 NX,XX, </p>
+<p>NX是不存在的时候才set, 存在时无效. 可以用于分布式锁</p>
+<p>XX是存在的时候才set, 不存在时无效.  可以用于更新</p>
+</blockquote>
+</li>
+<li><p>mset</p>
+<blockquote>
+<p>  MSET key value [key value …]<br>  summary: Set multiple keys to multiple values<br>  since: 1.0.1<br>  group: string</p>
+<p>可以设置多个key-value</p>
+</blockquote>
+</li>
+<li><p>get</p>
+</li>
+<li><p>mget</p>
+</li>
+<li><p>append</p>
+<blockquote>
+<p>可以追加字符串</p>
+<p>127.0.0.1:6379&gt; get key1<br>(nil)<br>127.0.0.1:6379&gt; set key1 hello<br>OK<br>127.0.0.1:6379&gt; append key1 world<br>(integer) 10<br>127.0.0.1:6379&gt; get key1<br>“helloworld”</p>
+</blockquote>
+</li>
+<li><p>getrange</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; getrange key1 5 9<br>“world”</p>
+<p>127.0.0.1:6379&gt; getrange key1 5 -1<br>“world”</p>
+<p>字符串支持正负向索引, -1代表字符串结束, -2代表倒数第二个位置.</p>
+</blockquote>
+</li>
+<li><p>setrange</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; setrange key1 5 3306<br>(integer) 10<br>127.0.0.1:6379&gt; get key1<br>“hello3306d”</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>数值型</strong></p>
+<p>key中会带有类型信息, 用来描述对应value的类型.</p>
+<blockquote>
+<p> 127.0.0.1:6379&gt; type key1<br>string</p>
+</blockquote>
+<p>因为redis的五种value都会有自己的方法, 方法和类型绑定的. </p>
+<p>在操作value时, 如果方法的类型和实际类型不匹配的话, 一对比就可以直接抛错.</p>
+<p>使用 <code>object encoding key</code>可以查看key的编码类型, 对于<code>set key2 99</code>来说, 获得的结果就是<code>&quot;int&quot;</code></p>
+<p>对于数值类型, 对他可做的操作就是增减, incr和decr用来加一或减一, incrby和decrby用来加一个数或减一个数.</p>
+<p>还可以对数值类型加减一个小数使用incrbyfloat.</p>
+<p><strong>二进制安全</strong></p>
+<p>在redis进程与外界交互的时候, 使用的是字节流. 即, 只用于读取数据, 不会通过任何形式解析数据.</p>
+<p>这样一来, 只要双方依然按照二进制的形式进行编码解码, 数据就不会被破坏.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; set k1 99999<br>OK<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 5<br>127.0.0.1:6379&gt; append k1 99<br>(integer) 7<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 7<br>127.0.0.1:6379&gt; object encoding k1<br>“raw”<br>127.0.0.1:6379&gt; incr k1<br>(integer) 10000000<br>127.0.0.1:6379&gt; object encoding k1<br>“int”</p>
+</blockquote>
+<p>除了存储type以外, 在key上还会存储编码, 基于二进制安全的考虑, redis并没有用1个字节存储-128~127之间的内容, 而是每一位都单独存储.</p>
+<p>当调用incr等方法需要做计算的时候, 会将这些字节取出来整理成可计算的数值. </p>
+<p>如果没有报错, 说明计算完的结果也可以作为数值使用, 就将编码类型改成数值型, 下次就不用再做判断.</p>
+<p><strong>位图</strong></p>
+<p>redis中, 位图是一个字节一个字节组成的, <code>SETBIT key offset value</code>中的offset的含义是整个二进制串中的第几个位置.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; setbit k1 1 1<br>(integer) 0<br>127.0.0.1:6379&gt; get k1<br>“@”<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 1</p>
+</blockquote>
+<p>k1代表一个字节, <code>0000 0000</code>, 将1位置改为1 , <code>0100 0000</code>, 它对应的ascii码就是@符号.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; setbit k1 7 1<br>(integer) 0<br>127.0.0.1:6379&gt; get k1<br>“A”<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 1</p>
+</blockquote>
+<p>改到7位置的时候, 因为字节长度索引最长是7, 所以还没越界, k1的长度没有加1.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; setbit k1 8 1<br>(integer) 0<br>127.0.0.1:6379&gt; get k1<br>“A\x80”<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 2</p>
+</blockquote>
+<p>改到8位置的时候, 一个字节已经装不下了, 就添加了一个字节来放8位置的1.</p>
+<p>而且前一个字节的ascii对应A, 后一个输出的是16机制的<code>1000 0000</code>, 因为8代表的是第二个字节的第一位.</p>
+<h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>list维护的是一个双向链表, 并且维护了头和尾节点.</p>
+<p>操作命令有<code>lpush</code>,<code>rpush</code>,<code>lpop</code>,<code>rpop</code>, 从同侧进出就是栈, 从不同侧进出就是队列.</p>
+<p>lpush的意思是从链表的左侧压入. lpop的意思是从链表的左侧弹出.</p>
+<p>同时list还可以实现一个阻塞的单播队列.</p>
+<p><strong>blpop</strong></p>
+<blockquote>
+<p>  BLPOP key [key …] timeout<br>  summary: Remove and get the first element in a list, or block until one is ava<br>ilable<br>  since: 2.0.0<br>  group: list</p>
+</blockquote>
+<p>当两个客户端同时对一个key进行blpop时, 因为是<code>Remove and get</code>, 所以一个线程获取到之后停止阻塞, 另一个线程获取不到, 继续阻塞.</p>
+<p>blpop也可以设置超时时间, 当时间到了还没有获取到就返回空.</p>
+<h3 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h3><p>hash约等于java中的HashMap.</p>
+<p>相当于在key对应的value中再放一个hashMap.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; hset u1 name zhangsan<br>(integer) 1<br>127.0.0.1:6379&gt; hmset u1 age 18 aaddress cn<br>OK<br>127.0.0.1:6379&gt; hget u1 name<br>“zhangsan”<br>127.0.0.1:6379&gt; hmget u1 age aaddress<br>1) “18”<br>2) “cn”<br>127.0.0.1:6379&gt; hvals u1<br>1) “zhangsan”<br>2) “18”<br>3) “cn”<br>127.0.0.1:6379&gt; hgetall u1<br>1) “name”<br>2) “zhangsan”<br>3) “age”<br>4) “18”<br>5) “aaddress”<br>6) “cn”</p>
+</blockquote>
+<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>set就类似java中的HashSet.</p>
+<p>存储不相同的值, 主要操作有<code>sadd</code>, <code>srem</code>等增删操作和<code>sinter</code>取交集, <code>sunion</code>取并集, <code>sdiff</code>取差集.</p>
+<p><code>srandmember</code> 取随机几个元素. 后面接的count可能有几种情况, 正负数, 绝对值是否超过set长度.</p>
+<p>如果是正数, 会保证结果不重复, 但是返回条数不一定会达到count值.</p>
+<p>如果是负数, 一定会返回条数达到count值, 但是不能保证不重复.</p>
+<p>但是不管怎么取, 本身这个set里的值是不变的.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; sadd k1 xooo oxoo ooxo ooox<br>(integer) 4<br>127.0.0.1:6379&gt; srandmember k1 5<br>1) “ooox”<br>2) “xooo”<br>3) “ooxo”<br>4) “oxoo”<br>127.0.0.1:6379&gt; srandmember k1 -5<br>1) “ooox”<br>2) “ooox”<br>3) “ooox”<br>4) “xooo”<br>5) “oxoo”</p>
+</blockquote>
+<p><code>spop</code>可以从set中随机弹出一个或几个元素, 就像抽奖一样, 取出一个小球不放回.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; spop k1 2<br>1) “oxoo”<br>2) “xooo”<br>127.0.0.1:6379&gt; smembers k1<br>1) “ooox”<br>2) “ooxo”</p>
+</blockquote>
+<h3 id="sorted-set"><a href="#sorted-set" class="headerlink" title="sorted set"></a>sorted set</h3><p>sprted set类似于java中的TreeSet, 放入的元素是有序的. </p>
+<p>但是这个有序和list的有序不同, list的有序是放入元素的有序, sorted set的有序是元素本身的有序, 跟放入顺序无关.</p>
+<blockquote>
+<p>  ZADD key [NX|XX] [CH] [INCR] score member [score member …]<br>  summary: Add one or more members to a sorted set, or update its score if it al<br>ready exists<br>  since: 1.2.0<br>  group: sorted_set</p>
+<p>sorted set添加的时候需要制定一个score, </p>
+</blockquote>
+<p>放入sorted set的元素按照score从小到大的排序.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; zadd k1 8 apple 2 banana 3 peach 8 orange<br>(integer) 4<br>127.0.0.1:6379&gt; zrange k1 0 -1<br>1) “banana”<br>2) “peach”<br>3) “apple”<br>4) “orange”</p>
+</blockquote>
+<p>zrange是按照索引取元素, zrangebyscore是按照score取元素.</p>
+<p>这是从小到大取, 如果从大到小怎么取. zrevrange.</p>
+<p>对于分数也可以进行增减, 在增减后, set中的顺序也在改变.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; zincrby k1 1.5 banana<br>“3.5”<br>127.0.0.1:6379&gt; zrange k1 0 -1 withscores<br>1) “peach”<br>2) “3”<br>3) “banana”<br>4) “3.5”<br>5) “apple”<br>6) “8”<br>7) “orange”<br>8) “8”</p>
+</blockquote>
+<p><code>zunionstore</code>将两个sorted set合并存储. 默认将两个set中相同的score相加, 可以通过调整两个set的权重来调调整score.</p>
+<p>可以使用aggreate来指定如何取score.</p>
+<h4 id="sorted-set的底层存储结构"><a href="#sorted-set的底层存储结构" class="headerlink" title="sorted set的底层存储结构"></a>sorted set的底层存储结构</h4><p>使用的是<code>skip list</code>,  跳表.</p>
+<p>跳表就是在链表基础上的优化, 普通的链表查询效率是 O(n), 而跳表通过层级的跳跃, 会减小查询的复杂度, 使之变为O(logn), 即使用链表达到了数组二分的复杂度.</p>
 
             </div>
             <hr/>
@@ -767,9 +933,9 @@ public class ExecutorConfig extends AsyncConfigurerSupport {
             <br/>
             <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
                   property="dct:title" rel="dct:type">
-                    《在使用@Async情况下，子线程访问父线程中@RequestScope注解修饰的对象》
+                    《Redis(一)》
                 </span> 由
-            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/07/14/2019.7.14/" property="cc:attributionName"
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2020/07/13/2020-07-13/" property="cc:attributionName"
                rel="cc:attributionURL">
                 echi1995
             </a> 采用
@@ -809,29 +975,81 @@ public class ExecutorConfig extends AsyncConfigurerSupport {
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2019/07/17/2019-7-17/">
+                <a href="/2020/07/13/2020-07-13/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="Quartz修改代码后仍运行老代码的问题">
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="Redis(一)">
                         
-                        <span class="card-title">Quartz修改代码后仍运行老代码的问题</span>
+                        <span class="card-title">Redis(一)</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            问题描述：今天在使用quartz时,因为一个疏忽,错误的将一个job加入了scheduler中.之后不管怎么改代码都是老的结果,并没有细想原因而是单方面认为是缓存的原因.导致不管是清class文件还是重启都无法解决.直到下班都没有解决.带着
+                            (一)Redis(一)为什么要使用Redis?首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-07-17
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-13
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                    学而不思则罔
+                                </a>
+                            
+                            
                         </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java-io/" target="_blank">
+                        <span class="chip bg-color">java - io</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2020/07/12/2020-07-12/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="深入理解JVM(三)">
+                        
+                        <span class="card-title">深入理解JVM(三)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            深入理解JVM(三)GC算法CMSCMS在任何一个JAVA版本中都不是默认的垃圾回收器, 但是同时他又是一个非常重要的GC.
+Serial和Parallel都是无法和工作线程同时相应, 必须垃圾收集结束才可以进行工作线程的继续. 这就导致了
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-12
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fa fa-bookmark fa-fw icon-category"></i>
@@ -847,73 +1065,8 @@ public class ExecutorConfig extends AsyncConfigurerSupport {
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/java/" target="_blank">
-                        <span class="chip bg-color">java</span>
-                    </a>
-                    
-                    <a href="/tags/quartz/" target="_blank">
-                        <span class="chip bg-color">quartz</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                本篇&nbsp;<i class="fa fa-dot-circle-o"></i>
-            </div>
-            <div class="card">
-                <a href="/2019/07/14/2019.7.14/">
-                    <div class="card-image">
-                        
-                        
-                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="在使用@Async情况下，子线程访问父线程中@RequestScope注解修饰的对象">
-                        
-                        <span class="card-title">在使用@Async情况下，子线程访问父线程中@RequestScope注解修饰的对象</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            问题描述：
-在开发过程中，发现使用@Async修饰的方法，一旦使用到@RequestScope修饰的对象时，就会出现异常。大致意思是当前线程没有request scope。  
-
-搜索过程:在搜索问题的过程中，发现似乎所有的线索都在指向：H
-                        
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-07-14
-                            </span>
-                        <span class="publish-author">
-                            
-                            <i class="fa fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/java/" class="post-category" target="_blank">
-                                    java
-                                </a>
-                            
-                            <a href="/categories/java/解决方案/" class="post-category" target="_blank">
-                                    解决方案
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/java/" target="_blank">
-                        <span class="chip bg-color">java</span>
-                    </a>
-                    
-                    <a href="/tags/spring/" target="_blank">
-                        <span class="chip bg-color">spring</span>
+                    <a href="/tags/java-jvm/" target="_blank">
+                        <span class="chip bg-color">java - jvm</span>
                     </a>
                     
                 </div>
