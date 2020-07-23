@@ -5,7 +5,7 @@
 <head><meta name="generator" content="Hexo 3.9.0">
     <meta charset="utf-8">
     <meta name="keywords" content="Redis(一), 扣哥哥的博客">
-    <meta name="description" content="(一)Redis(一)为什么要使用Redis?首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘">
+    <meta name="description" content="Redis(一)为什么要使用Redis?首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘IO占">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -432,7 +432,7 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="一"><a href="#一" class="headerlink" title="(一)"></a>(一)</h1><h1 id="Redis-一"><a href="#Redis-一" class="headerlink" title="Redis(一)"></a>Redis(一)</h1><h2 id="为什么要使用Redis"><a href="#为什么要使用Redis" class="headerlink" title="为什么要使用Redis?"></a>为什么要使用Redis?</h2><p>首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘IO占满的情况, 这种情况就是数据库的瓶颈.</p>
+                <h1 id="Redis-一"><a href="#Redis-一" class="headerlink" title="Redis(一)"></a>Redis(一)</h1><h2 id="为什么要使用Redis"><a href="#为什么要使用Redis" class="headerlink" title="为什么要使用Redis?"></a>为什么要使用Redis?</h2><p>首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘IO占满的情况, 这种情况就是数据库的瓶颈.</p>
 <p>那么相比磁盘, 内存的速度要快很多, 磁盘的寻址速度是ms级, 而内存的寻址速度是ns级, 内存的瓶颈也远高于磁盘.</p>
 <p>那么将数据库整个放到内存中如何?</p>
 <p>但是内存的价格也远比磁盘贵, 而且内存大了以后,所配套的CPU, 网卡全都需要随之定制. </p>
@@ -975,30 +975,30 @@ rement] [OVERFLOW WRAP|SAT|FAIL]
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
-            </div>
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2020/07/13/2020-07-13/">
+                <a href="/2020/07/20/2020-07-20/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="Redis(一)">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="Redis(二)">
                         
-                        <span class="card-title">Redis(一)</span>
+                        <span class="card-title">Redis(二)</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            (一)Redis(一)为什么要使用Redis?首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘
+                            Redis(二)管道可以使用nc连接redis, 只要连接到redis对应的端口, 比如6379, 就可以使用redis中的命令.
+通过echo将多个命令组合起来, echo可以识别\n, 使用\n将多条命令拼起来, 在一次网络请求发送过去
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-13
-                            </span>
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-20
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fa fa-bookmark fa-fw icon-category"></i>
@@ -1011,12 +1011,11 @@ rement] [OVERFLOW WRAP|SAT|FAIL]
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/java-io/" target="_blank">
-                        <span class="chip bg-color">java - io</span>
+                    <a href="/tags/java-redis/" target="_blank">
+                        <span class="chip bg-color">java - redis</span>
                     </a>
                     
                 </div>
@@ -1188,7 +1187,7 @@ Serial和Parallel都是无法和工作线程同时相应, 必须垃圾收集结�
             <br>
             
             &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">84.7k</span>&nbsp;字
+                class="white-color">92.1k</span>&nbsp;字
             
             
             
