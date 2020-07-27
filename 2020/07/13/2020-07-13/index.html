@@ -1,0 +1,1361 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="Redis(一), 扣哥哥的博客">
+    <meta name="description" content="Redis(一)为什么要使用Redis?首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘IO占">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Redis(一) | 扣哥哥的博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+    
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">扣哥哥的博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">扣哥哥的博客</div>
+        <div class="logo-desc">
+            
+            ————一个尚未脱离低级趣味,喜好毒鸡汤的人
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        Redis(一)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/java/" target="_blank">
+                                <span class="chip bg-color">java</span>
+                            </a>
+                        
+                            <a href="/tags/redis/" target="_blank">
+                                <span class="chip bg-color">redis</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                学而不思则罔
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2020-07-13
+                </div>
+
+                
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
+                        3.6k
+                    </div>
+                    
+
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                        16 分
+                    </div>
+                    
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="Redis-一"><a href="#Redis-一" class="headerlink" title="Redis(一)"></a>Redis(一)</h1><h2 id="为什么要使用Redis"><a href="#为什么要使用Redis" class="headerlink" title="为什么要使用Redis?"></a>为什么要使用Redis?</h2><p>首先, 关系型数据库中的数据是存放在磁盘上的, 而磁盘的IO是有限制的.  就算MySQL对索引做了优化, 每次读一个索引, 当海量的请求压过来的时候可能查询到各种各样不同的数据, 会发生把磁盘IO占满的情况, 这种情况就是数据库的瓶颈.</p>
+<p>那么相比磁盘, 内存的速度要快很多, 磁盘的寻址速度是ms级, 而内存的寻址速度是ns级, 内存的瓶颈也远高于磁盘.</p>
+<p>那么将数据库整个放到内存中如何?</p>
+<p>但是内存的价格也远比磁盘贵, 而且内存大了以后,所配套的CPU, 网卡全都需要随之定制. </p>
+<p>那么能否有一种方案既便宜又绕开磁盘瓶颈呢?</p>
+<p>于是就有了缓存, 将一部分数据缓存到内存中, 用的时候快速读取, 当缓存中没有的时候才去磁盘中取.</p>
+<p><a href="https://db-engines.com/en/ranking" target="_blank" rel="noopener">数据库引擎排行</a></p>
+<p>这个页面有数据库的排行信息.</p>
+<h3 id="缓存的选择"><a href="#缓存的选择" class="headerlink" title="缓存的选择"></a>缓存的选择</h3><p>缓存可以选择<code>memory cache</code>或<code>redis</code>. 那他们有什么区别呢</p>
+<p>memory cache和redis都是键值对结构, 但是他们最大的区别就是 memory cache没有类型的概念.</p>
+<p>在memory cache中, 想要修改一个value必须将value拿到客户端, 修改之后再set回去. 而redis提供了对数据的直接操作.</p>
+<h2 id="Redis的安装"><a href="#Redis的安装" class="headerlink" title="Redis的安装"></a>Redis的安装</h2><ol>
+<li><p>打开redis官网, 找到redis最新的稳定版</p>
+<p><img src="/2020/07/13/2020-07-13/redis%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80.jpg" alt></p>
+</li>
+<li><p>复制redis下载链接</p>
+</li>
+<li><p>下载redis</p>
+<blockquote>
+<p>wget <a href="http://download.redis.io/releases/redis-6.0.5.tar.gz" target="_blank" rel="noopener">http://download.redis.io/releases/redis-6.0.5.tar.gz</a></p>
+<p>// 这里的链接就是第二步中复制的链接</p>
+</blockquote>
+</li>
+<li><p>解压redis</p>
+<blockquote>
+<p>tar xf redis-6.0.5.tar.gz</p>
+</blockquote>
+</li>
+<li><p>进入解压后的redis目录</p>
+<blockquote>
+<p>vi README.md</p>
+<p>// 可以看到, README中写到, </p>
+<p>Building Redis</p>
+<p>It is as simple as:</p>
+<p>% make</p>
+</blockquote>
+</li>
+<li><p>退出README.md</p>
+</li>
+<li><p>在redis目录</p>
+<blockquote>
+<p>make</p>
+</blockquote>
+</li>
+<li><p>如果上一步提示安装gcc, 按照提示安装之后 执行make distclean删除之前生成的文件.</p>
+</li>
+<li><p>执行完会输出 “Hint: It’s a good idea to run ‘make test’ ; “ 可以测试一下</p>
+</li>
+<li><p>之后进入src目录</p>
+<blockquote>
+<p>cd src</p>
+</blockquote>
+</li>
+<li><p>可以看到, 已经有了redis-server</p>
+</li>
+<li><p>启动redis-server</p>
+<blockquote>
+<p> ./redis-server</p>
+</blockquote>
+</li>
+<li><p>但是在服务器上总不至于每次重启都手动开启redis, 因此要把redis做成服务.</p>
+</li>
+<li><p>README.md中写了, 使用make install将redis命令装入/usr/local/bin中</p>
+<blockquote>
+<p>make install</p>
+</blockquote>
+</li>
+<li><p>并且在utils中, 有一个install_server.sh, 这个仅提供给linux使用, mac不好使</p>
+<blockquote>
+<p>cd utils</p>
+<p>./install_server.sh</p>
+<p>// 可能会提示</p>
+<p>This systems seems to use systemd.</p>
+<p>Please take a look at the provided example service unit files in this directory, and adapt and install them. Sorry!</p>
+<p>在install_server.sh中将这部分注释掉即可</p>
+</blockquote>
+</li>
+<li><p>运行中出现</p>
+<blockquote>
+<p>Please select the redis port for this instance: [6379] 这是选择这个服务器启动的端口</p>
+<p>Please select the redis config file name [/etc/redis/6379.conf] 选择配置文件</p>
+<p>Please select the redis log file name [/var/log/redis_6379.log] 配置日志地址</p>
+<p>Please select the data directory for this instance [/var/lib/redis/6379] 选择redis的数据目录</p>
+<p>Please select the redis executable path [/usr/local/bin/redis-server] 选择redis可执行文件的配置</p>
+</blockquote>
+</li>
+<li><p>全部配置好之后, 再一次问你 Is this ok?  直接回车确定</p>
+</li>
+<li><p>提示Installation successful!</p>
+</li>
+<li><p><code>cd /etc/init.d</code>查看, 确实多个redis_6379这个启动脚本</p>
+</li>
+<li><p>使用 <code>service redis_6379 status</code>查看redis状态</p>
+</li>
+<li><p>这样就在6379端口成功的配置了一个redis. redis可以起多个, 只要端口选择另外一个就可以了.</p>
+</li>
+</ol>
+<h2 id="Redis为什么快"><a href="#Redis为什么快" class="headerlink" title="Redis为什么快"></a>Redis为什么快</h2><ol>
+<li><p>因为Redis首先是基于内存的, </p>
+</li>
+<li><p>redis是k-v结构的, 类似于HashMap, 查找和操作的时间复杂度都是O(1)</p>
+</li>
+<li><p>单线程, 减少了不必要的线程上下文切换和竞争, 不用考虑锁</p>
+<blockquote>
+<p>指的是处理网络请求的时候只有单线程, 实际整个redis肯定是有多个线程的.</p>
+</blockquote>
+</li>
+<li><p>采用了多路复用的IO模型</p>
+</li>
+</ol>
+<h3 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h3><p>为什么要多路复用?</p>
+<p><strong>阻塞IO</strong></p>
+<p>如果是阻塞IO, 一个线程去处理一个连接, 同时有1000个连接就要起1000个线程去接收数据, 这个消耗是不可接受的.</p>
+<p>这个线程在等待数据的时候只能进行阻塞等待, 不能做其他的事, 而线程的成本又是很高的, 所以需要减少线程.</p>
+<p><strong>非阻塞IO</strong></p>
+<p>如果只起一个线程, 这个线程去轮询的查看每个连接是否发送数据, 当连接就绪的时候读取数据.</p>
+<p>这样是减少了线程数, 但是线程每次去访问连接都是用户态到内核态的转变, 也是非常消耗资源的.</p>
+<p>而且存在一个将数据从连接读入的过程.</p>
+<p><strong>多路复用</strong></p>
+<p>将轮询这个操作交给内核处理, 当连接就绪的时候, 由内核通知相应的进程进行处理, 并使用共享内存进行数据的共享, 节省了拷贝数据的消耗.</p>
+<h2 id="Redis的使用"><a href="#Redis的使用" class="headerlink" title="Redis的使用"></a>Redis的使用</h2><p>在前面, 装好了redis, 并且装成了服务, 那么可以直接<code>redis-cli</code>启动redis客户端.</p>
+<p>redis-cli默认连接的是6379客户端, 可以通过参数修改连接的host和port等各种参数,</p>
+<p>连接到redis之后, 可以使用help查看帮助</p>
+<h3 id="string"><a href="#string" class="headerlink" title="string"></a>string</h3><blockquote>
+<p> help @string</p>
+</blockquote>
+<pre><code>  APPEND key value
+  summary: Append a value to a key
+  since: 2.0.0
+
+  BITCOUNT key [start end]
+  summary: Count set bits in a string
+  since: 2.6.0
+
+  BITFIELD key [GET type offset] [SET type offset value] [INCRBY type offset in
+rement] [OVERFLOW WRAP|SAT|FAIL]
+  summary: Perform arbitrary bitfield integer operations on strings
+  since: 3.2.0
+
+  BITOP operation destkey key [key ...]
+  summary: Perform bitwise operations between strings
+  since: 2.6.0
+
+  BITPOS key bit [start] [end]
+  summary: Find first bit set or clear in a string
+  since: 2.8.7
+
+  DECR key
+  summary: Decrement the integer value of a key by one
+  since: 1.0.0
+
+  DECRBY key decrement
+  summary: Decrement the integer value of a key by the given number
+  since: 1.0.0
+
+  GET key
+  summary: Get the value of a key
+  since: 1.0.0
+
+  GETBIT key offset
+  summary: Returns the bit value at offset in the string value stored at key
+  since: 2.2.0
+
+  GETRANGE key start end
+  summary: Get a substring of the string stored at a key
+  since: 2.4.0
+
+  GETSET key value
+  summary: Set the string value of a key and return its old value
+  since: 1.0.0
+
+  INCR key
+  summary: Increment the integer value of a key by one
+  since: 1.0.0
+
+  INCRBY key increment
+  summary: Increment the integer value of a key by the given amount
+  since: 1.0.0
+
+  INCRBYFLOAT key increment
+  summary: Increment the float value of a key by the given amount
+  since: 2.6.0
+
+  MGET key [key ...]
+  summary: Get the values of all the given keys
+  since: 1.0.0
+
+  MSET key value [key value ...]
+  summary: Set multiple keys to multiple values
+  since: 1.0.1
+
+  MSETNX key value [key value ...]
+  summary: Set multiple keys to multiple values, only if none of the keys exist
+  since: 1.0.1
+
+  PSETEX key milliseconds value
+  summary: Set the value and expiration in milliseconds of a key
+  since: 2.6.0
+
+  SET key value [EX seconds] [PX milliseconds] [NX|XX]
+  summary: Set the string value of a key
+  since: 1.0.0
+
+  SETBIT key offset value
+  summary: Sets or clears the bit at offset in the string value stored at key
+  since: 2.2.0
+
+  SETEX key seconds value
+  summary: Set the value and expiration of a key
+  since: 2.0.0
+
+  SETNX key value
+  summary: Set the value of a key, only if the key does not exist
+  since: 1.0.0
+
+  SETRANGE key offset value
+  summary: Overwrite part of a string at key starting at the specified offset
+  since: 2.2.0
+
+  STRLEN key
+  summary: Get the length of the value stored in a key
+  since: 2.2.0</code></pre><p>string可以面向 字符串, 数值, 位图</p>
+<p><strong>字符串</strong></p>
+<ul>
+<li><p>set </p>
+<blockquote>
+<p>  SET key value [EX seconds] [PX milliseconds] [NX|XX]<br>  summary: Set the string value of a key<br>  since: 1.0.0<br>  group: string </p>
+<p>  set key value 后面可以加过期时间, 还可以加 NX,XX, </p>
+<p>NX是不存在的时候才set, 存在时无效. 可以用于分布式锁</p>
+<p>XX是存在的时候才set, 不存在时无效.  可以用于更新</p>
+</blockquote>
+</li>
+<li><p>mset</p>
+<blockquote>
+<p>  MSET key value [key value …]<br>  summary: Set multiple keys to multiple values<br>  since: 1.0.1<br>  group: string</p>
+<p>可以设置多个key-value</p>
+</blockquote>
+</li>
+<li><p>get</p>
+</li>
+<li><p>mget</p>
+</li>
+<li><p>append</p>
+<blockquote>
+<p>可以追加字符串</p>
+<p>127.0.0.1:6379&gt; get key1<br>(nil)<br>127.0.0.1:6379&gt; set key1 hello<br>OK<br>127.0.0.1:6379&gt; append key1 world<br>(integer) 10<br>127.0.0.1:6379&gt; get key1<br>“helloworld”</p>
+</blockquote>
+</li>
+<li><p>getrange</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; getrange key1 5 9<br>“world”</p>
+<p>127.0.0.1:6379&gt; getrange key1 5 -1<br>“world”</p>
+<p>字符串支持正负向索引, -1代表字符串结束, -2代表倒数第二个位置.</p>
+</blockquote>
+</li>
+<li><p>setrange</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; setrange key1 5 3306<br>(integer) 10<br>127.0.0.1:6379&gt; get key1<br>“hello3306d”</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>数值型</strong></p>
+<p>key中会带有类型信息, 用来描述对应value的类型.</p>
+<blockquote>
+<p> 127.0.0.1:6379&gt; type key1<br>string</p>
+</blockquote>
+<p>因为redis的五种value都会有自己的方法, 方法和类型绑定的. </p>
+<p>在操作value时, 如果方法的类型和实际类型不匹配的话, 一对比就可以直接抛错.</p>
+<p>使用 <code>object encoding key</code>可以查看key的编码类型, 对于<code>set key2 99</code>来说, 获得的结果就是<code>&quot;int&quot;</code></p>
+<p>对于数值类型, 对他可做的操作就是增减, incr和decr用来加一或减一, incrby和decrby用来加一个数或减一个数.</p>
+<p>还可以对数值类型加减一个小数使用incrbyfloat.</p>
+<p><strong>二进制安全</strong></p>
+<p>在redis进程与外界交互的时候, 使用的是字节流. 即, 只用于读取数据, 不会通过任何形式解析数据.</p>
+<p>这样一来, 只要双方依然按照二进制的形式进行编码解码, 数据就不会被破坏.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; set k1 99999<br>OK<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 5<br>127.0.0.1:6379&gt; append k1 99<br>(integer) 7<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 7<br>127.0.0.1:6379&gt; object encoding k1<br>“raw”<br>127.0.0.1:6379&gt; incr k1<br>(integer) 10000000<br>127.0.0.1:6379&gt; object encoding k1<br>“int”</p>
+</blockquote>
+<p>除了存储type以外, 在key上还会存储编码, 基于二进制安全的考虑, redis并没有用1个字节存储-128~127之间的内容, 而是每一位都单独存储.</p>
+<p>当调用incr等方法需要做计算的时候, 会将这些字节取出来整理成可计算的数值. </p>
+<p>如果没有报错, 说明计算完的结果也可以作为数值使用, 就将编码类型改成数值型, 下次就不用再做判断.</p>
+<p><strong>位图</strong></p>
+<p>redis中, 位图是一个字节一个字节组成的, <code>SETBIT key offset value</code>中的offset的含义是整个二进制串中的第几个位置.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; setbit k1 1 1<br>(integer) 0<br>127.0.0.1:6379&gt; get k1<br>“@”<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 1</p>
+</blockquote>
+<p>k1代表一个字节, <code>0000 0000</code>, 将1位置改为1 , <code>0100 0000</code>, 它对应的ascii码就是@符号.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; setbit k1 7 1<br>(integer) 0<br>127.0.0.1:6379&gt; get k1<br>“A”<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 1</p>
+</blockquote>
+<p>改到7位置的时候, 因为字节长度索引最长是7, 所以还没越界, k1的长度没有加1.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; setbit k1 8 1<br>(integer) 0<br>127.0.0.1:6379&gt; get k1<br>“A\x80”<br>127.0.0.1:6379&gt; strlen k1<br>(integer) 2</p>
+</blockquote>
+<p>改到8位置的时候, 一个字节已经装不下了, 就添加了一个字节来放8位置的1.</p>
+<p>而且前一个字节的ascii对应A, 后一个输出的是16机制的<code>1000 0000</code>, 因为8代表的是第二个字节的第一位.</p>
+<h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>list维护的是一个双向链表, 并且维护了头和尾节点.</p>
+<p>操作命令有<code>lpush</code>,<code>rpush</code>,<code>lpop</code>,<code>rpop</code>, 从同侧进出就是栈, 从不同侧进出就是队列.</p>
+<p>lpush的意思是从链表的左侧压入. lpop的意思是从链表的左侧弹出.</p>
+<p>同时list还可以实现一个阻塞的单播队列.</p>
+<p><strong>blpop</strong></p>
+<blockquote>
+<p>  BLPOP key [key …] timeout<br>  summary: Remove and get the first element in a list, or block until one is ava<br>ilable<br>  since: 2.0.0<br>  group: list</p>
+</blockquote>
+<p>当两个客户端同时对一个key进行blpop时, 因为是<code>Remove and get</code>, 所以一个线程获取到之后停止阻塞, 另一个线程获取不到, 继续阻塞.</p>
+<p>blpop也可以设置超时时间, 当时间到了还没有获取到就返回空.</p>
+<h3 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h3><p>hash约等于java中的HashMap.</p>
+<p>相当于在key对应的value中再放一个hashMap.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; hset u1 name zhangsan<br>(integer) 1<br>127.0.0.1:6379&gt; hmset u1 age 18 aaddress cn<br>OK<br>127.0.0.1:6379&gt; hget u1 name<br>“zhangsan”<br>127.0.0.1:6379&gt; hmget u1 age aaddress<br>1) “18”<br>2) “cn”<br>127.0.0.1:6379&gt; hvals u1<br>1) “zhangsan”<br>2) “18”<br>3) “cn”<br>127.0.0.1:6379&gt; hgetall u1<br>1) “name”<br>2) “zhangsan”<br>3) “age”<br>4) “18”<br>5) “aaddress”<br>6) “cn”</p>
+</blockquote>
+<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>set就类似java中的HashSet.</p>
+<p>存储不相同的值, 主要操作有<code>sadd</code>, <code>srem</code>等增删操作和<code>sinter</code>取交集, <code>sunion</code>取并集, <code>sdiff</code>取差集.</p>
+<p><code>srandmember</code> 取随机几个元素. 后面接的count可能有几种情况, 正负数, 绝对值是否超过set长度.</p>
+<p>如果是正数, 会保证结果不重复, 但是返回条数不一定会达到count值.</p>
+<p>如果是负数, 一定会返回条数达到count值, 但是不能保证不重复.</p>
+<p>但是不管怎么取, 本身这个set里的值是不变的.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; sadd k1 xooo oxoo ooxo ooox<br>(integer) 4<br>127.0.0.1:6379&gt; srandmember k1 5<br>1) “ooox”<br>2) “xooo”<br>3) “ooxo”<br>4) “oxoo”<br>127.0.0.1:6379&gt; srandmember k1 -5<br>1) “ooox”<br>2) “ooox”<br>3) “ooox”<br>4) “xooo”<br>5) “oxoo”</p>
+</blockquote>
+<p><code>spop</code>可以从set中随机弹出一个或几个元素, 就像抽奖一样, 取出一个小球不放回.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; spop k1 2<br>1) “oxoo”<br>2) “xooo”<br>127.0.0.1:6379&gt; smembers k1<br>1) “ooox”<br>2) “ooxo”</p>
+</blockquote>
+<h3 id="sorted-set"><a href="#sorted-set" class="headerlink" title="sorted set"></a>sorted set</h3><p>sprted set类似于java中的TreeSet, 放入的元素是有序的. </p>
+<p>但是这个有序和list的有序不同, list的有序是放入元素的有序, sorted set的有序是元素本身的有序, 跟放入顺序无关.</p>
+<blockquote>
+<p>  ZADD key [NX|XX] [CH] [INCR] score member [score member …]<br>  summary: Add one or more members to a sorted set, or update its score if it al<br>ready exists<br>  since: 1.2.0<br>  group: sorted_set</p>
+<p>sorted set添加的时候需要制定一个score, </p>
+</blockquote>
+<p>放入sorted set的元素按照score从小到大的排序.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; zadd k1 8 apple 2 banana 3 peach 8 orange<br>(integer) 4<br>127.0.0.1:6379&gt; zrange k1 0 -1<br>1) “banana”<br>2) “peach”<br>3) “apple”<br>4) “orange”</p>
+</blockquote>
+<p>zrange是按照索引取元素, zrangebyscore是按照score取元素.</p>
+<p>这是从小到大取, 如果从大到小怎么取. zrevrange.</p>
+<p>对于分数也可以进行增减, 在增减后, set中的顺序也在改变.</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; zincrby k1 1.5 banana<br>“3.5”<br>127.0.0.1:6379&gt; zrange k1 0 -1 withscores<br>1) “peach”<br>2) “3”<br>3) “banana”<br>4) “3.5”<br>5) “apple”<br>6) “8”<br>7) “orange”<br>8) “8”</p>
+</blockquote>
+<p><code>zunionstore</code>将两个sorted set合并存储. 默认将两个set中相同的score相加, 可以通过调整两个set的权重来调调整score.</p>
+<p>可以使用aggreate来指定如何取score.</p>
+<h4 id="sorted-set的底层存储结构"><a href="#sorted-set的底层存储结构" class="headerlink" title="sorted set的底层存储结构"></a>sorted set的底层存储结构</h4><p>使用的是<code>skip list</code>,  跳表.</p>
+<p>跳表就是在链表基础上的优化, 普通的链表查询效率是 O(n), 而跳表通过层级的跳跃, 会减小查询的复杂度, 使之变为O(logn), 即使用链表达到了数组二分的复杂度.</p>
+
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《Redis(一)》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2020/07/13/2020-07-13/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                echi1995
+            </a> 采用
+            <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2020/07/20/2020-07-20/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="Redis(二)">
+                        
+                        <span class="card-title">Redis(二)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Redis(二)管道可以使用nc连接redis, 只要连接到redis对应的端口, 比如6379, 就可以使用redis中的命令.
+通过echo将多个命令组合起来, echo可以识别\n, 使用\n将多条命令拼起来, 在一次网络请求发送过去
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-20
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                    学而不思则罔
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/redis/" target="_blank">
+                        <span class="chip bg-color">redis</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2020/07/12/2020-07-12/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="深入理解JVM(三)">
+                        
+                        <span class="card-title">深入理解JVM(三)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            深入理解JVM(三)GC算法CMSCMS在任何一个JAVA版本中都不是默认的垃圾回收器, 但是同时他又是一个非常重要的GC.
+Serial和Parallel都是无法和工作线程同时相应, 必须垃圾收集结束才可以进行工作线程的继续. 这就导致了
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-12
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                    学而不思则罔
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/jvm/" target="_blank">
+                        <span class="chip bg-color">jvm</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+
+    <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&nbsp;&copy;<a href="http://echi1995.github.io" target="_blank">echi1995</a>&nbsp;基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a>&nbsp;的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>&nbsp;主题搭建
+            <br>
+            
+            &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">96.7k</span>&nbsp;字
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="fa fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fa fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            <br>
+            <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+            <script>
+                var now = new Date();
+
+                function createtime() {
+                    var grt = new Date("06/28/2019 00:00:00");
+                    now.setTime(now.getTime() + 250);
+                    days = (now - grt) / 1000 / 60 / 60 / 24;
+                    dnum = Math.floor(days);
+                    hours = (now - grt) / 1000 / 60 / 60 - (24 * dnum);
+                    hnum = Math.floor(hours);
+                    if (String(hnum).length == 1) {
+                        hnum = "0" + hnum;
+                    }
+                    minutes = (now - grt) / 1000 / 60 - (24 * 60 * dnum) - (60 * hnum);
+                    mnum = Math.floor(minutes);
+                    if (String(mnum).length == 1) {
+                        mnum = "0" + mnum;
+                    }
+                    seconds = (now - grt) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+                    snum = Math.round(seconds);
+                    if (String(snum).length == 1) {
+                        snum = "0" + snum;
+                    }
+                    document.getElementById("timeDate").innerHTML = "本站已安全运行 " + dnum + " 天 ";
+                    document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+                }
+                setInterval("createtime()", 250);
+            </script>
+            
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/echi1995" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fa fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:echi1995@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=634626989" class="tooltipped" data-tooltip="QQ联系我: 634626989" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    
+    <script src="/libs/others/clicklove.js"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i["DaoVoiceObject"] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            a.charset = "utf-8";
+            m.parentNode.insertBefore(a, m)
+        })(window, document, "script", ('https:' == document.location.protocol ? 'https:' : 'http:') +
+            "//widget.daovoice.io/widget/6984b559.js", "daovoice")
+        daovoice('init', {
+            app_id: ""
+        });
+        daovoice('update');
+    </script>
+    
+
+    
+
+    
+
+    
+    <script type="text/javascript" src="/libs/background/ribbon-dynamic.js"></script>
+    
+
+</body>
+
+</html>

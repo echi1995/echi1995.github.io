@@ -1,0 +1,1235 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="Redis(三), 扣哥哥的博客">
+    <meta name="description" content="Redis(三)Redis集群单机出现的问题前面讲了redis单机情况下的配置和持久化, 但是单机情况下有一些性能上的障碍是绕不过去的.
+
+单机时, redis故障服务停止
+单机容量有限
+单机计算压力大
+
+AKF理论为了解决redis单机的">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Redis(三) | 扣哥哥的博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+    
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">扣哥哥的博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">扣哥哥的博客</div>
+        <div class="logo-desc">
+            
+            ————一个尚未脱离低级趣味,喜好毒鸡汤的人
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/11.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        Redis(三)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/java/" target="_blank">
+                                <span class="chip bg-color">java</span>
+                            </a>
+                        
+                            <a href="/tags/redis/" target="_blank">
+                                <span class="chip bg-color">redis</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                学而不思则罔
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2020-07-22
+                </div>
+
+                
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
+                        5.4k
+                    </div>
+                    
+
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                        19 分
+                    </div>
+                    
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="Redis-三"><a href="#Redis-三" class="headerlink" title="Redis(三)"></a>Redis(三)</h1><h2 id="Redis集群"><a href="#Redis集群" class="headerlink" title="Redis集群"></a>Redis集群</h2><h3 id="单机出现的问题"><a href="#单机出现的问题" class="headerlink" title="单机出现的问题"></a>单机出现的问题</h3><p>前面讲了redis单机情况下的配置和持久化, 但是单机情况下有一些性能上的障碍是绕不过去的.</p>
+<ol>
+<li>单机时, redis故障服务停止</li>
+<li>单机容量有限</li>
+<li>单机计算压力大</li>
+</ol>
+<h3 id="AKF理论"><a href="#AKF理论" class="headerlink" title="AKF理论"></a>AKF理论</h3><p>为了解决redis单机的问题, 有一个AKF的理论:</p>
+<p><strong>AKF扩展立方体（Scalability Cube）</strong>，是《架构即未来》一书中提出的可扩展模型，这个立方体有三个轴线，每个轴线描述扩展性的一个维度，他们分别是产品、流程和团队：</p>
+<ul>
+<li><p>X轴 —— 代表无差别的克隆服务和数据，工作可以很均匀的分散在不同的服务实例上；</p>
+</li>
+<li><p>Y轴 —— 关注应用中职责的划分，比如数据类型，交易执行类型的划分；</p>
+</li>
+<li><p>Z轴 —— 关注服务和数据的优先级划分，如分地域划分。</p>
+</li>
+</ul>
+<p>即, 我们可以在x轴,<code>扩展多个redis实例</code>. 当主redis挂掉后不至于停止服务, 从redis可以<code>继续提供服务</code>.</p>
+<p>后来发现既然redis都已经启动了, 索性也不要浪费, 由主redis提供写操作, 从redis提供读操作.</p>
+<p>但是因为在X轴是全量的克隆, 原本redis有10G大小, 复制也是有10G的大小, 存储的数据都是一样的, 并不能解决容量有限的问题.</p>
+<p>因此可以在Y轴进行扩展, <code>对数据进行按照功能业务进行划分</code>, 不同的数据存入不同的redis,  这样可以<code>提升redis可存储数据大小</code>. 同样在拆分出的redis也可以进行x轴的扩展.</p>
+<p>如果业务继续进行扩大,  可以将每个主redis继续进行拆分, <code>比如根据用户的id进行拆分</code>, Z轴上的redis依然是<code>提供相同业务的服务</code>, 但是根据用户的信息使他们访问不同的同一z轴上的redis, 这样对redis的容量进行了进一步的扩展.</p>
+<p>这样的解决方案看起来很美好, 但是解决一个问题又引入了其他问题:</p>
+<p><strong>通过AKF进行X轴镜像复制, 如何保证主从redis的数据一致性</strong></p>
+<ol>
+<li><p>当客户端对主redis进行写操作后, 主机并不直接返回结果, 而是阻塞等待所有的从节点都确认一致后再返回.</p>
+<p>这个方案是强一致性的. 但是这个方案成本极高, 极有可能会破坏可用性. 如果主redis对从redis进行同步时, 因为网络或其他原因导致返回过慢, 比如需要10m才返回, 这时客户端要等待10m, 但是网络通信基本都会有超时的概念.</p>
+<p>我们进行X轴的扩展本来就是为了解决单点故障时的可用性, 但是因为上面的原因, 无法保证可用性, 所以上面的方案只是看起来美好,实际成本过高.<code>强一致性, 会破坏可用性</code></p>
+</li>
+<li><p>那如果在主机写成功后立即给客户端返回结果, 然后再向从机中同步, 提高可用性. 但是可能会发生从机一直写失败的情况, 导致部分数据丢失.</p>
+<p>这个方案因为是异步同步, 所以客户端体验很好, 但是因为异步同步可能导致失败, 最终造成<code>数据丢失</code>.</p>
+</li>
+<li><p>如果在主机和从机中间添加一层, 这一层要足够的快, 足够可靠, 而且可以持久化. 这样主机和中间层中间同步数据时是同步式的, 因为足够快, 所以同步数据结束后就可以向客户端返回. 而从机最终可以和中间层达成同步, 达成数据的<code>最终一致</code>.</p>
+<p>因为客户端什么时候请求数据我们无法预测, 从机和中间层什么时候同步数据完成我们也无法预测, 所以可能会出现客户端请求时发生数据不一致的情况, 所以redis也可以强调成强一致性.</p>
+</li>
+</ol>
+<h3 id="主从-amp-主备"><a href="#主从-amp-主备" class="headerlink" title="主从&amp;主备"></a>主从&amp;主备</h3><p>主备是客户端不会访问备用机, 只会访问主机.</p>
+<p>主从是客户端不光会访问主机也会访问从机.</p>
+<p>redis两种都可以选择, 更倾向于主从, 主从复制.</p>
+<h3 id="监控"><a href="#监控" class="headerlink" title="监控"></a>监控</h3><p>这时当主机挂掉了以后, 客户端如果没有做改变, 依然是访问已经挂掉的主机, 服务依旧不可用. </p>
+<p>所以需要对主机做HA 高可用.</p>
+<p>当主机挂掉后, 使一个从机变成主机, 其他从机追随新的主机, 客户端也访问新的主机.</p>
+<p>这个步骤可以手动完成, 但是人并不能时时刻刻盯着服务器是否宕机, 所以需要一些自动的方式完成这些工作.</p>
+<p>那么, 启动一个监控程序来监视redis主机是否宕机? 既然是程序, 也有可能会发生宕机的情况, 就像单机redis一样, 我们并不希望监控程序挂掉, 那么我们可以开启多个监控程序同时监视redis主机.</p>
+<p>什么时候算主机宕机呢? 每个监控程序都认为主机挂了, 那么就认为主机挂了, 所有监控程序都认为主机还活着, 那么就认为主机活着.</p>
+<p>如果监控程序中有的认为活着有的认为已经挂了呢? 这个判断条件太强, 可能仅仅是一个监控设备的网络有问题, 但是实际服务是正常, 大部分监控也是正常, 这时候我们应该认为主机的正常工作的, 是主机和那一个监控之间的连接出现了问题. 也有可能是大部分监控服务都已经断掉, 仅仅有少量的监控仍检测到主机存活, 这时应该认为主机已经挂掉, 而不应该判断为存活.</p>
+<p>那么这<code>一部分</code>的取值范围是多少呢?</p>
+<p>要求的超过半数的监控认为redis挂掉才会认为是挂掉了.</p>
+<p>为什么呢?</p>
+<p>如果有挂掉和存活的数量各占一半, 那么redis主机到底是判断存活还是挂掉. 如果有一主二从, 三台redis, 主挂掉了, 两个从各获得一半的投票, 这种情况就被称为脑裂.可能同时会出现两个主机.而主机负责写, 这种情况下, 可能会发生两台机器上都改动到了同一个key, 在merge的时候并不能知道以哪个为准.</p>
+<p><strong>监控数量</strong></p>
+<p>一般监控都会设置奇数个, 因为如果是3台, 过半是2, 允许最多一个节点挂掉. 如果是4台, 过半是3, 也是允许最多一个节点挂掉.</p>
+<p>3和4允许挂掉的最大节点的相同的, 但是3台的成本低于4台. 而且4台的机器数量多了, 会更容易出现故障.</p>
+<h3 id="如何设置主从结构"><a href="#如何设置主从结构" class="headerlink" title="如何设置主从结构"></a>如何设置主从结构</h3><p>命令的方式:</p>
+<ul>
+<li><p>启动多个redis</p>
+</li>
+<li><p><code>slaveof</code>命令, 在5.0以后换成了<code>replicaof</code>.</p>
+</li>
+<li><p>从机连接到主机后, 主机会将现有数据打成一个RDB文件, 发送给从机, 从机接收到这个RDB后, 将原本自己的数据删除, 再load从主机接收到的文件.</p>
+</li>
+<li><p>从机连接主机后, 主机中写入的会自动同步到从机, 而且从机变成只读模式, 不可以写入数据.</p>
+</li>
+<li><p>如果从机掉线, 再重新连回的时候, 如果已经启动再使用命令追随,会触发一次RDB. 如果启动时就设置追随, 且RDB文件没有发生改变, 就不会发生RDB.</p>
+</li>
+<li><p>但是如果开启AOF, 无论是如何追随, 都是全量同步, 因为从机AOF生成的dump.rdb中没有rdb号.</p>
+</li>
+<li><p>如果主机挂了, 想要把其中一台从机变成主机, 只需要在从机上执行<code>replicaof no one</code>.</p>
+</li>
+<li><p>让其他从机追随新的主机即可.</p>
+</li>
+</ul>
+<p>以上是人工的设置redis主从的操作, 但是人为的每次都手动去设置太麻烦, 所以也可以将上述过程写到配置文件中.</p>
+<ul>
+<li><p>在配置文件中修改<code>replicaof &lt;masterip&gt; &lt;masterport&gt;</code></p>
+</li>
+<li><p><code>replica-server-stale-data yes</code> 是当主机和从机复制数据的时候, 从开始复制到复制完成有一段时间, 这段时间内是否还继续提供数据的读取.</p>
+</li>
+<li><p><code>replica-read-only yes</code>从机是否是只读模式</p>
+</li>
+<li><p><code>repl-diskless-sync no</code> 主机和从机中间复制,是先把RDB写到磁盘上再通过网络发送过去, 还是直接通过网络发送过去.</p>
+</li>
+<li><p><code>repl-backlog-size 1mb</code>增量复制, 如果从机短暂下线, 回来后想要获取主机最新的数据, 可以根据这个配置, 根据RDB文件中的号和一个偏移量增量的去同步新数据. 如果增量超过这个值, 就不再增量的同步, 而是全量同步.</p>
+</li>
+</ul>
+<p>但是配置文件还是没法解决主机挂掉的问题, 当主机挂掉的时候还是需要人工的去解决这个问题.</p>
+<h3 id="Sentinel-哨兵"><a href="#Sentinel-哨兵" class="headerlink" title="Sentinel 哨兵"></a>Sentinel 哨兵</h3><p><a href="http://www.redis.cn/topics/sentinel.html" target="_blank" rel="noopener">Redis 的 Sentinel 文档</a></p>
+<p>Redis 的 Sentinel 系统用于管理多个 Redis 服务器（instance）， 该系统执行以下三个任务：</p>
+<ul>
+<li><strong>监控（Monitoring</strong>）： Sentinel 会不断地检查你的主服务器和从服务器是否运作正常。</li>
+<li><strong>提醒（Notification）</strong>： 当被监控的某个 Redis 服务器出现问题时， Sentinel 可以通过 API 向管理员或者其他应用程序发送通知。</li>
+<li><strong>自动故障迁移（Automatic failover）</strong>： 当一个主服务器不能正常工作时， Sentinel 会开始一次自动故障迁移操作， 它会将失效主服务器的其中一个从服务器升级为新的主服务器， 并让失效主服务器的其他从服务器改为复制新的主服务器； 当客户端试图连接失效的主服务器时， 集群也会向客户端返回新主服务器的地址， 使得集群可以使用新主服务器代替失效服务器。</li>
+</ul>
+<p>启动哨兵</p>
+<p>redis自己就可以做为哨兵, redis-sentinel是一个指向redis-server的链接. 所以理论上一台redis可以既存储数据又作为哨兵.</p>
+<p>但是我们一般不这么做, 哨兵就只做哨兵的工作.</p>
+<p>哨兵需要一个配置文件, 配置文件中最少包含两条信息</p>
+<blockquote>
+<pre><code>port 26379 # 哨兵开在哪个端口
+sentinel monitor mymaster 127.0.0.1 6379 2 # 哨兵监控哪个主机, ip和端口是哪里, 选举几票过半</code></pre></blockquote>
+<p>配置好哨兵的配置信息后,<code>redis-server ./26379.conf --sentinel</code>就可以开启哨兵. </p>
+<p>哨兵启动后会自动连接主机, 而且通过主机可以发现追随主机的从机.</p>
+<p>可以启动多个哨兵, 多个哨兵之间也可以互相发现. </p>
+<p>哨兵之间互相发现是使用了PUB/SUB的机制, 多个哨兵通过在master上进行沟通, 发现其他哨兵.</p>
+<p>当主机挂掉之后, 哨兵不会立即开始选举新的节点, 因为网络通信会有延迟, 可能主机仅仅只是网络阻塞.</p>
+<p>当主机失联时间超过配置文件中配置的阈值时, 哨兵开始选举新的主机, 并会将所有从机都设置跟随新的主机.</p>
+<p>并且哨兵会修改自己的配置文件, 会将新的主机的地址写到配置文件中.</p>
+<h3 id="容量问题"><a href="#容量问题" class="headerlink" title="容量问题"></a>容量问题</h3><p>上面解决的是单机挂了的问题, 但是我们提出了三个问题.</p>
+<p>这里讨论容量问题, 因为在x轴扩展都是镜像复制, 容量该多大还是多大, 10G的空间只能装固定条数的 , 30G空间开3台redis依然只能装这么多条数据.</p>
+<p>要解决容量问题, 可以在客户端进行<code>业务逻辑拆分</code>. 将数据按照业务拆分到不同的redis中, 某一部分的业务就去特定的redis中存取.</p>
+<p>但是有的时候业务就是拆不开, 数据总数就是很大. </p>
+<p>这时候可以按照一些算法拆分.这时候就是对数据的分片.</p>
+<ul>
+<li><p>modula(hash+取模)</p>
+<p>比如将数据取hash并取模,存入不同的redis中. </p>
+<p>但是hash这种方法有一个天生的弊端, 取模的数必须是固定的. %3和%4的值是不一样的. </p>
+<p>比如最开始起了3台redis, 我们希望将同种的数据尽量的向同一台redis中放, 比如 k1 第一次进入了1号机器, 下次来的时候我们希望他还是去1号机器中取. 随着公司业务的扩展, 可能3台redis不够用了, 又添加了两台. 现在是5台redis, 这时 k1 再来请求就不一定还是去1号机器了.</p>
+<p>hash+取模这种方式会影响分布式下的扩展性.</p>
+</li>
+<li><p>random</p>
+<p>这时候就是将数据随机的分发到不同的redis中, 这时候客户端也不知道去哪里取. </p>
+<p>一般这种场景是用在消息队列上.</p>
+</li>
+<li><p>一致性hash算法</p>
+<p>一致性hash算法会将data和node都加入计算. 一般规划成一个环形, 哈希环.</p>
+<p>将node按照hash算法获得一个值, 指向环上一个点. 数据也通过hash算法获得一个值, 指向环上一个点. </p>
+<p>数据只要找到他前面一个最近的点, 就是他应该存放的node.</p>
+<p>这样, 当新加一个节点的时候, 只有新加入的节点hash后面的一部分数据会被影响, 而其他大部分数据都不会受到影响.</p>
+<p>优点是加节点不会造成数据的大规模重hash, 而且确实可以解决数据分布的问题.</p>
+<p>缺点是新增节点会造成一小部分数据不能命中.</p>
+<p>可能会造成缓存中没有, 请求会压到数据库,造成缓存的击穿.</p>
+<p>解决方案可能会增加复杂度. 如果正常取时没有取到想要的值, 就再往前取一个节点.</p>
+<p>所以这种方案更适合作缓存用, 而不是数据库.</p>
+<p><strong>虚拟节点</strong>: 可以使一个节点拼上一个固定的值得出不同的在hash环上的位置, 这样可能会对数据倾斜的问题有所改善.</p>
+</li>
+</ul>
+<h3 id="数据分治带来的问题"><a href="#数据分治带来的问题" class="headerlink" title="数据分治带来的问题"></a>数据分治带来的问题</h3><p>聚合操作很难实现, 事务很难实现.</p>
+<p>redis作者将这个问题抛给用户, 计算向数据移动. </p>
+<p><a href="http://redis.cn/topics/partitioning.html" target="_blank" rel="noopener">分区：怎样将数据分布到多个redis实例</a></p>
+<p><a href="http://redis.cn/topics/cluster-tutorial.html" target="_blank" rel="noopener">Redis 集群教程</a></p>
+<h3 id="redis集群代理"><a href="#redis集群代理" class="headerlink" title="redis集群代理"></a>redis集群代理</h3><p>实际使用中, 一个server不可能只有一个client连接. 有可能有十个,几十个的client连接. 这就会给服务器带来很大的压力.</p>
+<p>网络连接的成本是很高的, 这时可以使用代理来减轻服务器压力. 并且上面的计算可以放在代理层做. 这样保证了客户端的简单透明.</p>
+<p><a href="https://github.com/twitter/twemproxy" target="_blank" rel="noopener">Twemproxy</a></p>
+<p><a href="https://github.com/nrk/predis" target="_blank" rel="noopener">predis</a></p>
+<h3 id="redis集群"><a href="#redis集群" class="headerlink" title="redis集群"></a>redis集群</h3><p>如果最开始只有两个redis, 但是做取模的时候预先留好扩展的位置, 比如取模10. </p>
+<p>这样的话, 可以使用一个映射表, 将0,1,2,3,4映射到redis1, 将5,6,7,8,9映射到redis2.</p>
+<p>如果将来要新扩展一台机器, 可以将3,4,8,9交给新增的机器. 这样只要将redis1中的3,4和redis2中的8,9放到redis3中即可.</p>
+<p>Redis的实现是, 客户端可以随意连接一台redis, 被连接的redis收到后先做取模运算, 算出值, 并通过内部的映射表告诉客户端实际应该连哪台redis, 将客户端重定向到应该连接的那个redis中.</p>
+<p>这要求每个服务器都要实现取模运算, 都要维护其他redis的取模值映射表.</p>
+<p>要开启redis集群, 在redis源码中提供了脚本供我们学习.在redis/utils/create-cluster中.</p>
+<blockquote>
+<p> To create a cluster, follow these steps:</p>
+<ol>
+<li>Edit create-cluster and change the start / end port, depending on the<br>number of instances you want to create.</li>
+<li>Use “./create-cluster start” in order to run the instances.</li>
+<li>Use “./create-cluster create” in order to execute redis-cli –cluster create, so that<br>an actual Redis cluster will be created. (If you’re accessing your setup via a local container, ensure that the CLUSTER_HOST value is changed to your local IP)</li>
+<li>Now you are ready to play with the cluster. AOF files and logs for each instances are created in the current directory.</li>
+</ol>
+<p>In order to stop a cluster:</p>
+<ol>
+<li>Use “./create-cluster stop” to stop all the instances. After you stopped the instances you can use “./create-cluster start” to restart them if you change your mind.</li>
+<li>Use “./create-cluster clean” to remove all the AOF / log files to restart with a clean environment.</li>
+</ol>
+</blockquote>
+<ol>
+<li><p>修改create-cluster脚本.</p>
+<p>在脚本文件中, <code>NODES=6</code>的意思是起多少台redis实例,<code>REPLICAS=1</code>的意思是每个主机有多少从机. </p>
+<p>上面这个配置的意思是总共6台redis, 每个主机有1台从机, 即有三个主机组成的集群.</p>
+</li>
+<li><p><code>./create-cluster start</code>启动脚本中配置的NODES台redis.</p>
+</li>
+<li><p><code>./create-cluster create</code>脚本会提示每个master所占的槽位, 从机和主机的对应, </p>
+</li>
+<li><p>输入yes确定.</p>
+</li>
+</ol>
+<p>这样就启动了redis集群. </p>
+<p>试试连接 <code>redis-cli -p 30001</code></p>
+<p>成功连上, 试着<code>set k1 hello</code>.</p>
+<p>提示 <code>(error) MOVED 12706 127.0.0.1:30003</code></p>
+<p>和我们前面说的一样, redis集群计算出这个key应该在哪台机器上, 使客户端重定向到相应的机器.</p>
+<p>但是普通客户端只能收到这个error提示, 不能自动的重定向. </p>
+<p>使用<code>redis-cli -c  -p 30001</code>, 这时再尝试set key.</p>
+<p>现在会返回key应该去哪个槽, 已经重定向到了对应redis, 并且返回操作成功的OK.</p>
+<p>这是通过脚本启动的, 脚本只能在本机上启动这么多redis. 我们想要实际上在多台机器上启动redis.</p>
+<p><code>redis-cli --cluster help</code>中可以查看如何创建分布式集群.</p>
+<h3 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h3><p>但是我们前面说过, 集群的问题是不能使用聚合和事务.</p>
+<p>因此我们可以使用标签.</p>
+<p>比如, k1会发送到redis1, k2会发送到redis3.</p>
+<p>在key前面加上 {xx} 用花括号给key打一个标签, 这时同样标签的数据都会发送到同一个节点上.</p>
+<p>对于同一个标签, 可以进行聚合和事务操作.</p>
+<p>如果不使用标签, 直接在redis1上开启事务, 当set k1时, k1进入QUEUE. set k2时会跳到redis3. 这时EXEC会提示没有事务, 因为事务开在redis1上, 而现在已经跳到redis3, 所以会出现这种情况.</p>
+<h2 id="缓存常见问题"><a href="#缓存常见问题" class="headerlink" title="缓存常见问题"></a>缓存常见问题</h2><h3 id="击穿"><a href="#击穿" class="headerlink" title="击穿"></a>击穿</h3><p>如果给key设置了过期时间, 当过期时间到了以后可能这个key就会失效.</p>
+<p>或者设置了LRU, LFU, 将较冷的数据置换出去.</p>
+<p>如果这个key刚好失效, 此时刚好来了一大批流量请求这个可以. 这些流量就会打到数据库上.</p>
+<p>这时想要规避这个问题的重点就是如何防止大量请求直接连数据库.</p>
+<p>可以使用锁机制,  只让获取到锁的请求去数据库拿数据.</p>
+<p>涉及到锁机制, 就要考虑死锁的问题. 如果使用setnx方式去获取锁, 当一个请求获取到锁后, 如果这个请求突然挂了, 没有正确的释放锁. 这时其他所有的请求都无法获取到锁, 这就造成了死锁.</p>
+<p>可以通过给锁的key加上过期时间来使死锁变活, 如果获取锁的线程挂了没有正确释放锁, 在key过期后就会自动释放.</p>
+<p>那么这个过期时间设置多久呢? 如果设置10s过期, 在1s的时候请求就挂了, 其他所有的请求都要等待9s才可以获取锁.</p>
+<p>如果设置1s过期, 实际请求还没挂的时候1s就已经到了, 可能数据库产生拥塞, 还没做完就释放锁.</p>
+<p>可以开多个线程完成取数据的操作, 一个线程去数据库取数据, 一个线程每隔一段时间去维护锁时间.</p>
+<h3 id="穿透"><a href="#穿透" class="headerlink" title="穿透"></a>穿透</h3><p>冲业务接收查询的是系统根本不存在的数据, 这样的话无论请求多少次, 有多少个请求, 都无法在缓存中查到.也无法从数据库中查到.</p>
+<p>白白消耗服务器的资源做查询. </p>
+<p>这种问题可以使用布隆过滤器来解决.</p>
+<h3 id="雪崩"><a href="#雪崩" class="headerlink" title="雪崩"></a>雪崩</h3><p>雪崩是大量的key同时失效. 此时大量的请求请求失效的不同key.</p>
+<p>造成请求数据库数量过大.</p>
+<p>解决方案是随机过期时间.</p>
+<p>如果必须是到某一点时刻同时过期, 可以像击穿一样引入锁机制. 或者确定这个时间点, 在这个时间点附近的请求都可以睡眠随机时间. 以减缓流量压到redis或数据库的时间.</p>
+<h3 id="redis做分布式锁的问题"><a href="#redis做分布式锁的问题" class="headerlink" title="redis做分布式锁的问题"></a>redis做分布式锁的问题</h3><p>redis做分布式锁, 使用setnx来实现cas算法, 加上过期时间来保证不会发生死锁, 使用守护线程延长过期时间防止过期时间不足.</p>
+
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《Redis(三)》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2020/07/22/2020-07-22/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                echi1995
+            </a> 采用
+            <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2020/07/23/2020-07-23/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="Zookeeper">
+                        
+                        <span class="card-title">Zookeeper</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            ZookeeperZookeeper做分布式协调服务.
+
+可以看到, Zookeeper和redis的主从复制很像, 也是有一主多从的.
+那么Zookeeper一定也有redis一样的问题, 如果主机挂了怎么办. 是不是也要引入哨兵模式来实
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-23
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                    学而不思则罔
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/Zookeeper/" target="_blank">
+                        <span class="chip bg-color">Zookeeper</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2020/07/20/2020-07-20/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="Redis(二)">
+                        
+                        <span class="card-title">Redis(二)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Redis(二)管道可以使用nc连接redis, 只要连接到redis对应的端口, 比如6379, 就可以使用redis中的命令.
+通过echo将多个命令组合起来, echo可以识别\n, 使用\n将多条命令拼起来, 在一次网络请求发送过去
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-20
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                    学而不思则罔
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/redis/" target="_blank">
+                        <span class="chip bg-color">redis</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+
+    <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&nbsp;&copy;<a href="http://echi1995.github.io" target="_blank">echi1995</a>&nbsp;基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a>&nbsp;的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>&nbsp;主题搭建
+            <br>
+            
+            &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">96.7k</span>&nbsp;字
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="fa fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fa fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            <br>
+            <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+            <script>
+                var now = new Date();
+
+                function createtime() {
+                    var grt = new Date("06/28/2019 00:00:00");
+                    now.setTime(now.getTime() + 250);
+                    days = (now - grt) / 1000 / 60 / 60 / 24;
+                    dnum = Math.floor(days);
+                    hours = (now - grt) / 1000 / 60 / 60 - (24 * dnum);
+                    hnum = Math.floor(hours);
+                    if (String(hnum).length == 1) {
+                        hnum = "0" + hnum;
+                    }
+                    minutes = (now - grt) / 1000 / 60 - (24 * 60 * dnum) - (60 * hnum);
+                    mnum = Math.floor(minutes);
+                    if (String(mnum).length == 1) {
+                        mnum = "0" + mnum;
+                    }
+                    seconds = (now - grt) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+                    snum = Math.round(seconds);
+                    if (String(snum).length == 1) {
+                        snum = "0" + snum;
+                    }
+                    document.getElementById("timeDate").innerHTML = "本站已安全运行 " + dnum + " 天 ";
+                    document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+                }
+                setInterval("createtime()", 250);
+            </script>
+            
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/echi1995" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fa fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:echi1995@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=634626989" class="tooltipped" data-tooltip="QQ联系我: 634626989" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    
+    <script src="/libs/others/clicklove.js"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i["DaoVoiceObject"] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            a.charset = "utf-8";
+            m.parentNode.insertBefore(a, m)
+        })(window, document, "script", ('https:' == document.location.protocol ? 'https:' : 'http:') +
+            "//widget.daovoice.io/widget/6984b559.js", "daovoice")
+        daovoice('init', {
+            app_id: ""
+        });
+        daovoice('update');
+    </script>
+    
+
+    
+
+    
+
+    
+    <script type="text/javascript" src="/libs/background/ribbon-dynamic.js"></script>
+    
+
+</body>
+
+</html>
