@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>Zookeeper</title>
+      <link href="/2020/07/23/2020-07-23/"/>
+      <url>/2020/07/23/2020-07-23/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h1><p>Zookeeper做分布式协调服务.</p><p><img src="/2020/07/23/2020-07-23/zkservice.jpg" alt="Zookeeper集群图"></p><p>可以看到, Zookeeper和redis的主从复制很像, 也是有一主多从的.</p><p>那么Zookeeper一定也有redis一样的问题, 如果主机挂了怎么办. 是不是也要引入哨兵模式来实现主机的高可用.</p><p>Zookeeper主节点挂掉后, 整个服务就从可用状态变成了不可用状态, 如果有一种方式可以快速的使状态变回可用状态, 那么就可以算是高可用. </p><p>在Zookeeper的官网上, 有关于Zookeeper的压测, 由五台Zookeeper组成的集群, 当主节点挂掉后, 恢复的速度少于200ms. </p><p>ZooKeeper是一个分布式应用程序协调服务, 提供了文件系统和通知机制.</p><p>Zookeeper的文件系统中的节点是可以存放数据的, 但是限制了节点中数据的大小. 因为Zookeeper是为了快速响应的, 这就要求网络传输要快, 所以不能放过多数据.</p><p>##　节点</p><p>节点分为持久化节点和临时节点.  临时节点在客户端与Zookeeper断开连接后, 会被删除.</p><p>持久节点和临时节点都可以有序列号.</p><p><img src="/2020/07/23/2020-07-23/zknamespace.jpg" alt></p><p>客户端与Zookeeper通信的时候会有一个session, 临时节点就存放在session内.</p><h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>Zookeeper保证:</p><ul><li>顺序一致性: 客户端的请求顺序会按照发送顺序排队.</li><li>原子性: 操作要么所有机器都成功要么所有机器都失败, 没有只一部分成功的情况.</li><li>单系统镜像: 无论客户端连接到哪个服务器, 都会看到相同的数据</li><li>可靠性: 一旦应用了更新, 就会持久化. </li><li>及时性: 客户端看到的系统将在时间范围内,保证获取到的结果是最新的.</li></ul><h2 id="使用zookeeper"><a href="#使用zookeeper" class="headerlink" title="使用zookeeper"></a>使用zookeeper</h2><p>使用很简单, 进入zookeeper后, help可以查看命令</p><ul><li><p>ls path </p><p>显示path下的节点</p></li><li><p>create path data</p><p>在path下创建节点</p><p>-e是可选项, 代表创建临时节点</p><p>-s是可选项, 代表序列</p></li><li><p>get path</p><p>查看path的数据</p></li><li><p>set path data</p><p>设置path指向节点的数据. 只能放1m.而且是二进制安全的.</p></li><li><p>rmr path</p><p>删除一个节点</p></li></ul><p>在节点中的数据有很多 <code>cZxid</code>, <code>mZxid</code>, <code>pZxid</code>, <code>ephemeralOwner</code></p><ul><li><p>cZxid </p><p>zookeeper只有leader能写, leader是一个单进程, 维护一个自增的id很容易.因此可以很容易的给客户端发送的命令编号.</p><p>c代表的是create,  对应的值是 0x200000002, 这代表一个16进制. 后面8位代表32位二进制位, 是命令的编号. 第9位是代表当前leader是第几任leader. 当上一个leader挂掉, 新的leader选出后, 会是一个新的leader纪元.</p></li><li><p>mZxid</p><p>m代表修改命令</p></li><li><p>pZxid</p><p>代表当前节点下的最后一次创建的节点的命令</p></li><li><p>ephemeralOwner</p><p>代表当前节点的所有人, 当<code>create -e</code>时才会出现. 值是创建客户端的sessionId</p></li></ul><p>因为客户端连接会产生一个session, 如果客户端连接是zookeeper断了, 根据高可用, 客户端应该会连接一个其他的zookeeper.</p><p>那么, session是否会重新新建.  不会, 前面说过, zookeeper保证单系统镜像, 不光是节点会被镜像, session也会被镜像.</p><p>当客户端连接其他zookeeper的时候, 只要没有超过规定的超时时间,session都是有效的.</p><p>在分布式情况下, 很可能出现多个请求同时请求创建的情况, 可能会造成节点的覆盖.</p><p>使用-s可以开启节点序列, </p><h2 id="zookeeper提供的功能"><a href="#zookeeper提供的功能" class="headerlink" title="zookeeper提供的功能"></a>zookeeper提供的功能</h2><ol><li><p>统一配置管理</p><p>节点下可以设置1m的数据, 这样不同的客户端请求获取到的数据都是同一份的.</p></li><li><p>分组管理</p><p>根据path区分, 即使相同名称, 只要path不同就认为是不同</p></li><li><p>统一命名</p><p>通过-s来添加序列, 使相同名称拼接一个序号达到同一格式命名的效果.</p></li><li><p>同步</p><p>使用临时节点实现分布式锁.</p></li></ol><p>zookeeper提供分布式协调功能, 要求他具有扩展性, 可靠性, 时序性和快速的特点.</p><h3 id="扩展性"><a href="#扩展性" class="headerlink" title="扩展性"></a>扩展性</h3><h4 id="框架架构"><a href="#框架架构" class="headerlink" title="框架架构"></a>框架架构</h4><p><strong>角色</strong></p><ul><li>leader</li><li>follower</li><li>observer</li></ul><h4 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h4><p>使用observer方法读查询的能力.</p><p>只有follower才能选举</p><p>将一个zookeeper设置为observer, 只需要在配置文件里, 这一台zookeeper配置的后面加上<code>:observer</code></p><h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><p>可靠性是根据快速恢复leader实现的.</p><p><strong>如何保证数据的可靠可用的</strong></p><p>使用最终一致性</p><h4 id="Paxos算法"><a href="#Paxos算法" class="headerlink" title="Paxos算法"></a>Paxos算法</h4><p>Paxos是一个基于消息传递的一致性算法.</p><p>Paxos有一个前提, 没有拜占庭将军问题. 就是说Paxos只有在一个可信的计算环境中才能成立, 这个环境是不会被入侵所破坏的.</p><p><a href="https://www.douban.com/note/208430424/" target="_blank" rel="noopener">Zookeeper全解析——Paxos作为灵魂</a></p><blockquote><p>Paxos描述了这样一个场景，有一个叫做Paxos的小岛(Island)上面住了一批居民，岛上面所有的事情由一些特殊的人决定，他们叫做议员(Senator)。议员的总数(Senator Count)是确定的，不能更改。岛上每次环境事务的变更都需要通过一个提议(Proposal)，每个提议都有一个编号(PID)，这个编号是一直增长的，不能倒退。每个提议都需要超过半数((Senator Count)/2 +1)的议员同意才能生效。每个议员只会同意大于当前编号的提议，包括已生效的和未生效的。如果议员收到小于等于当前编号的提议，他会拒绝，并告知对方：你的提议已经有人提过了。这里的当前编号是每个议员在自己记事本上面记录的编号，他不断更新这个编号。整个议会不能保证所有议员记事本上的编号总是相同的。现在议会有一个目标：保证所有的议员对于提议都能达成一致的看法。</p><p>好，现在议会开始运作，所有议员一开始记事本上面记录的编号都是0。有一个议员发了一个提议：将电费设定为1元/度。他首先看了一下记事本，嗯，当前提议编号是0，那么我的这个提议的编号就是1，于是他给所有议员发消息：1号提议，设定电费1元/度。其他议员收到消息以后查了一下记事本，哦，当前提议编号是0，这个提议可接受，于是他记录下这个提议并回复：我接受你的1号提议，同时他在记事本上记录：当前提议编号为1。发起提议的议员收到了超过半数的回复，立即给所有人发通知：1号提议生效！收到的议员会修改他的记事本，将1好提议由记录改成正式的法令，当有人问他电费为多少时，他会查看法令并告诉对方：1元/度。</p><p>现在看冲突的解决：假设总共有三个议员S1-S3，S1和S2同时发起了一个提议:1号提议，设定电费。S1想设为1元/度, S2想设为2元/度。结果S3先收到了S1的提议，于是他做了和前面同样的操作。紧接着他又收到了S2的提议，结果他一查记事本，咦，这个提议的编号小于等于我的当前编号1，于是他拒绝了这个提议：对不起，这个提议先前提过了。于是S2的提议被拒绝，S1正式发布了提议: 1号提议生效。S2向S1或者S3打听并更新了1号法令的内容，然后他可以选择继续发起2号提议。</p><p>好，我觉得Paxos的精华就这么多内容。现在让我们来对号入座，看看在ZK Server里面Paxos是如何得以贯彻实施的。</p><p>小岛(Island)——ZK Server Cluster</p><p>议员(Senator)——ZK Server</p><p>提议(Proposal)——ZNode Change(Create/Delete/SetData…)</p><p>提议编号(PID)——Zxid(ZooKeeper Transaction Id)</p><p>正式法令——所有ZNode及其数据</p><p>貌似关键的概念都能一一对应上，但是等一下，Paxos岛上的议员应该是人人平等的吧，而ZK Server好像有一个Leader的概念。没错，其实Leader的概念也应该属于Paxos范畴的。如果议员人人平等，在某种情况下会由于提议的冲突而产生一个“活锁”（所谓活锁我的理解是大家都没有死，都在动，但是一直解决不了冲突问题）。Paxos的作者Lamport在他的文章”The Part-Time Parliament“中阐述了这个问题并给出了解决方案——在所有议员中设立一个总统，只有总统有权发出提议，如果议员有自己的提议，必须发给总统并由总统来提出。好，我们又多了一个角色：总统。</p><p>总统——ZK Server Leader</p><p>现在我们假设总统已经选好了，下面看看ZK Server是怎么实施的。</p><p>情况一：</p><p>屁民甲(Client)到某个议员(ZK Server)那里询问(Get)某条法令的情况(ZNode的数据)，议员毫不犹豫的拿出他的记事本(local storage)，查阅法令并告诉他结果，同时声明：我的数据不一定是最新的。你想要最新的数据？没问题，等着，等我找总统Sync一下再告诉你。</p><p>情况二：</p><p>屁民乙(Client)到某个议员(ZK Server)那里要求政府归还欠他的一万元钱，议员让他在办公室等着，自己将问题反映给了总统，总统询问所有议员的意见，多数议员表示欠屁民的钱一定要还，于是总统发表声明，从国库中拿出一万元还债，国库总资产由100万变成99万。屁民乙拿到钱回去了(Client函数返回)。</p><p>情况三：</p><p>总统突然挂了，议员接二连三的发现联系不上总统，于是各自发表声明，推选新的总统，总统大选期间政府停业，拒绝屁民的请求。</p></blockquote><p><strong>情况1:</strong>因为过半生效, 所以客户端请求的数据可能是还没来得及同步的数据, 此时可以给与一个可选的同步, 如果客户端要求同步, 那么就需要同步完成再返回数据.</p><p><strong>情况2:</strong>客户端请求服务端修改数据, 如果请求到follower, 那么follower要将这个请求发给leader, 然后进行过半生效. 基于活锁的考虑, follower无法发起投票, 只能向上交给leader处理.</p><p><strong>情况3:</strong>需要尽快的完成选举才可以保证可靠性.</p><h4 id="选举"><a href="#选举" class="headerlink" title="选举"></a>选举</h4><p>如果leader挂掉, 需要快速的完成选举尽快恢复对外的服务.</p><p>选举分为两种情况:</p><ol><li>第一次启动集群</li><li>重启集群, leader挂了</li></ol><p>每个zookeeper都有自己的myid, 都有一个Zxid.</p><p>选举的情况下, 肯定优先选择数据最全的那个节点为leader, 如果数据一样全, 那么按照myid大的那个为leader.</p><blockquote><p>为什么Zxid最大的那个就是数据最全的?</p><p>因为Zxid生效的前提是过半生效, 集群提供服务的前提是过半存活.</p><p>如果集群继续提供服务, 那么还存活的节点中一定有一个Zxid就等于数据最全的那个.</p></blockquote><h3 id="Watch-监控"><a href="#Watch-监控" class="headerlink" title="Watch 监控"></a>Watch 监控</h3><p>zookeeper尽量的使各个节点之间的数据都是一样的.</p><p>假设一个场景, <code>client1</code>创建了一个临时节点<code>/root/a</code>, <code>client2</code>监听这个节点.</p><p>当client1断开和zookeeper的连接之后, 因为临时节点根据session创建, session结束就会销毁. client1断开后, /root/a也会被销毁. </p><p>此时会产生一个事件event, 这个时间会被watch这个节点的client2收到, 产生一个回调.</p><h2 id="Zookeeper-API"><a href="#Zookeeper-API" class="headerlink" title="Zookeeper API"></a>Zookeeper API</h2><p>Zookeeper有session的概念, 所以没有连接池.</p><ol><li>直接在maven中引入Zookeeper依赖.</li><li>创建Zookeeper连接, <code>new ZooKeeper()</code>需要传入连接信息, 可以传入多个节点地址并用<code>,</code>连接. 传入session过期时间, 客户端断开连接后多久session失效. 传入一个watcher, 这个watcher与node,path无关, 只和session相关.</li><li>Watcher需要实现一个process方法, 这是事件的回调, 可以根据返回的WatchedEvent做响应的处理.</li><li>当收到state为SyncConnected的事件后, 表示建立连接完成.</li><li>可以使用api进行节点的创建,删除,修改数据.</li></ol><h2 id="分布式协调"><a href="#分布式协调" class="headerlink" title="分布式协调"></a>分布式协调</h2><p>前面说过, Zookeeper是用来做分布式协调的. 那么到底可以协调什么呢?</p><h3 id="分布式配置"><a href="#分布式配置" class="headerlink" title="分布式配置"></a>分布式配置</h3><p>当服务拆分的很碎的时候, 配置文件就会变得又多有繁杂, 当然可以每个服务都有一个本地的配置文件, 但是如果有一个地方要修改的时候, 需要手动的修改所有服务的每个配置文件.</p><p>所以我们需要一个<code>中心</code>, 所有的服务都可以去这个中心拿配置文件.</p><p>那么可以用redis, 用数据库, 为什么要用Zookeeper呢?</p><p>使用redis或数据库就难免绕开一个问题: 要起一个线程监听配置是否发生改变.</p><p>而使用Zookeeper, Zookeeper提供了watch的功能, 可以实现回调. 当配置发生改变的时候会调用回调方法, 自然就不用起一个线程去时不时的监听了. 而且回调得到的配置修改生效时间要比轮询的时间间隔短.</p><h3 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h3><p>加入有两个服务器, 想要同步执行一些东西. 这两个不能同时执行, 但是因为不在同一台机器上, 所以java基于内存的锁就不能用了, synchronized,lock都不好使, 所以这个锁就只能放到这两台机器外部. 无论是什么形式, redis还是数据库或者Zookeeper都可以,只要两个服务都能访问到就可以.</p><p>Zookeeper实现分布式锁需要实现一些特定的需求:</p><ol><li><p>争抢锁, 只有一个人能获得锁</p></li><li><p>获得锁的人出问题,锁可以自动释放 (临时节点 session)</p></li><li><p>成功获得锁的人可以释放锁</p></li><li><p>锁被释放后, 别人怎么可以感知到又可以争夺锁了</p><ol><li><p>主动轮询, 类似心跳的做法, 每隔一个时间间隔查询. </p><p>弊端: </p><p>获得锁会和上一次解锁之间有一个延迟, 这个延迟小于时间间隔.</p><p>服务器压力大, 如果有很多争抢锁, 每隔时间间隔都会有这么多请求去查询这个锁.</p></li><li><p>watch, 可以解决延迟问题, 当前一个释放锁会回调通知其他请求过来获取锁, 取消了轮询查询锁的请求.</p><p>弊端: </p><p>锁失效的时候, zookeeper会回调所有watch的客户端, 一瞬间又是很多请求过来抢锁, 服务器瞬时压力依然很大.</p></li><li><p>watch + sequence: 使用watch加序号的方式, 后一个watch前一个节点, 这些序号都在同一个父节点下面. 当前一个释放后, 后一个得到回调, 而且只有一个得到回调.</p><p>这就很像一个链式结构了, 那么如果链表中间断了呢?</p><p>如果链表中间断了, 那么他后面的一个会收到这个事件, 后面一个醒来, 醒来后获取这个列表, 排序看看自己是不是第一个, 如果不是第一个, 就继续排在队里, 这样就把这个链表又接上了.</p></li></ol></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学而不思则罔 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> java </tag>
+            
+            <tag> Zookeeper </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Redis(三)</title>
       <link href="/2020/07/22/2020-07-22/"/>
       <url>/2020/07/22/2020-07-22/</url>
@@ -20,7 +47,9 @@
       
         <tags>
             
-            <tag> java - redis </tag>
+            <tag> java </tag>
+            
+            <tag> redis </tag>
             
         </tags>
       
@@ -45,7 +74,9 @@
       
         <tags>
             
-            <tag> java - redis </tag>
+            <tag> java </tag>
+            
+            <tag> redis </tag>
             
         </tags>
       
@@ -70,7 +101,9 @@
       
         <tags>
             
-            <tag> java - io </tag>
+            <tag> java </tag>
+            
+            <tag> redis </tag>
             
         </tags>
       
@@ -95,7 +128,9 @@
       
         <tags>
             
-            <tag> java - jvm </tag>
+            <tag> java </tag>
+            
+            <tag> jvm </tag>
             
         </tags>
       
@@ -120,7 +155,9 @@
       
         <tags>
             
-            <tag> java - jvm </tag>
+            <tag> java </tag>
+            
+            <tag> jvm </tag>
             
         </tags>
       
@@ -145,7 +182,9 @@
       
         <tags>
             
-            <tag> java - jvm </tag>
+            <tag> java </tag>
+            
+            <tag> jvm </tag>
             
         </tags>
       
@@ -170,7 +209,9 @@
       
         <tags>
             
-            <tag> java - thread </tag>
+            <tag> java </tag>
+            
+            <tag> thread </tag>
             
         </tags>
       
@@ -195,7 +236,9 @@
       
         <tags>
             
-            <tag> java - thread </tag>
+            <tag> java </tag>
+            
+            <tag> thread </tag>
             
         </tags>
       
@@ -220,7 +263,9 @@
       
         <tags>
             
-            <tag> java - algorithm </tag>
+            <tag> java </tag>
+            
+            <tag> algorithm </tag>
             
         </tags>
       
@@ -245,7 +290,9 @@
       
         <tags>
             
-            <tag> java - thread </tag>
+            <tag> java </tag>
+            
+            <tag> thread </tag>
             
         </tags>
       
@@ -270,7 +317,9 @@
       
         <tags>
             
-            <tag> java - thread </tag>
+            <tag> java </tag>
+            
+            <tag> thread </tag>
             
         </tags>
       
@@ -295,7 +344,9 @@
       
         <tags>
             
-            <tag> java - proxy </tag>
+            <tag> java </tag>
+            
+            <tag> proxy </tag>
             
         </tags>
       
@@ -320,7 +371,9 @@
       
         <tags>
             
-            <tag> java - nio </tag>
+            <tag> java </tag>
+            
+            <tag> nio </tag>
             
         </tags>
       
@@ -345,7 +398,9 @@
       
         <tags>
             
-            <tag> java - spring </tag>
+            <tag> java </tag>
+            
+            <tag> spring </tag>
             
         </tags>
       
@@ -370,7 +425,9 @@
       
         <tags>
             
-            <tag> java - spring </tag>
+            <tag> java </tag>
+            
+            <tag> spring </tag>
             
         </tags>
       
@@ -395,7 +452,9 @@
       
         <tags>
             
-            <tag> java - api </tag>
+            <tag> java </tag>
+            
+            <tag> api </tag>
             
         </tags>
       
@@ -420,7 +479,9 @@
       
         <tags>
             
-            <tag> java - api </tag>
+            <tag> java </tag>
+            
+            <tag> api </tag>
             
         </tags>
       
@@ -445,7 +506,9 @@
       
         <tags>
             
-            <tag> java - spring </tag>
+            <tag> java </tag>
+            
+            <tag> spring </tag>
             
         </tags>
       
@@ -470,7 +533,9 @@
       
         <tags>
             
-            <tag> java - springboot </tag>
+            <tag> java </tag>
+            
+            <tag> springboot </tag>
             
         </tags>
       
@@ -495,7 +560,9 @@
       
         <tags>
             
-            <tag> java - spring </tag>
+            <tag> java </tag>
+            
+            <tag> spring </tag>
             
         </tags>
       
