@@ -1,0 +1,1202 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="Zookeeper, 扣哥哥的博客">
+    <meta name="description" content="ZookeeperZookeeper做分布式协调服务.
+
+可以看到, Zookeeper和redis的主从复制很像, 也是有一主多从的.
+那么Zookeeper一定也有redis一样的问题, 如果主机挂了怎么办. 是不是也要引入哨兵模式来实">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Zookeeper | 扣哥哥的博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+    
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">扣哥哥的博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">扣哥哥的博客</div>
+        <div class="logo-desc">
+            
+            ————一个尚未脱离低级趣味,喜好毒鸡汤的人
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/4.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        Zookeeper
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/java/" target="_blank">
+                                <span class="chip bg-color">java</span>
+                            </a>
+                        
+                            <a href="/tags/Zookeeper/" target="_blank">
+                                <span class="chip bg-color">Zookeeper</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                学而不思则罔
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2020-07-23
+                </div>
+
+                
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
+                        3.9k
+                    </div>
+                    
+
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                        13 分
+                    </div>
+                    
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h1><p>Zookeeper做分布式协调服务.</p>
+<p><img src="/2020/07/23/2020-07-23/zkservice.jpg" alt="Zookeeper集群图"></p>
+<p>可以看到, Zookeeper和redis的主从复制很像, 也是有一主多从的.</p>
+<p>那么Zookeeper一定也有redis一样的问题, 如果主机挂了怎么办. 是不是也要引入哨兵模式来实现主机的高可用.</p>
+<p>Zookeeper主节点挂掉后, 整个服务就从可用状态变成了不可用状态, 如果有一种方式可以快速的使状态变回可用状态, 那么就可以算是高可用. </p>
+<p>在Zookeeper的官网上, 有关于Zookeeper的压测, 由五台Zookeeper组成的集群, 当主节点挂掉后, 恢复的速度少于200ms. </p>
+<p>ZooKeeper是一个分布式应用程序协调服务, 提供了文件系统和通知机制.</p>
+<p>Zookeeper的文件系统中的节点是可以存放数据的, 但是限制了节点中数据的大小. 因为Zookeeper是为了快速响应的, 这就要求网络传输要快, 所以不能放过多数据.</p>
+<p>##　节点</p>
+<p>节点分为持久化节点和临时节点.  临时节点在客户端与Zookeeper断开连接后, 会被删除.</p>
+<p>持久节点和临时节点都可以有序列号.</p>
+<p><img src="/2020/07/23/2020-07-23/zknamespace.jpg" alt></p>
+<p>客户端与Zookeeper通信的时候会有一个session, 临时节点就存放在session内.</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>Zookeeper保证:</p>
+<ul>
+<li>顺序一致性: 客户端的请求顺序会按照发送顺序排队.</li>
+<li>原子性: 操作要么所有机器都成功要么所有机器都失败, 没有只一部分成功的情况.</li>
+<li>单系统镜像: 无论客户端连接到哪个服务器, 都会看到相同的数据</li>
+<li>可靠性: 一旦应用了更新, 就会持久化. </li>
+<li>及时性: 客户端看到的系统将在时间范围内,保证获取到的结果是最新的.</li>
+</ul>
+<h2 id="使用zookeeper"><a href="#使用zookeeper" class="headerlink" title="使用zookeeper"></a>使用zookeeper</h2><p>使用很简单, 进入zookeeper后, help可以查看命令</p>
+<ul>
+<li><p>ls path </p>
+<p>显示path下的节点</p>
+</li>
+<li><p>create path data</p>
+<p>在path下创建节点</p>
+<p>-e是可选项, 代表创建临时节点</p>
+<p>-s是可选项, 代表序列</p>
+</li>
+<li><p>get path</p>
+<p>查看path的数据</p>
+</li>
+<li><p>set path data</p>
+<p>设置path指向节点的数据. 只能放1m.而且是二进制安全的.</p>
+</li>
+<li><p>rmr path</p>
+<p>删除一个节点</p>
+</li>
+</ul>
+<p>在节点中的数据有很多 <code>cZxid</code>, <code>mZxid</code>, <code>pZxid</code>, <code>ephemeralOwner</code></p>
+<ul>
+<li><p>cZxid </p>
+<p>zookeeper只有leader能写, leader是一个单进程, 维护一个自增的id很容易.因此可以很容易的给客户端发送的命令编号.</p>
+<p>c代表的是create,  对应的值是 0x200000002, 这代表一个16进制. 后面8位代表32位二进制位, 是命令的编号. 第9位是代表当前leader是第几任leader. 当上一个leader挂掉, 新的leader选出后, 会是一个新的leader纪元.</p>
+</li>
+<li><p>mZxid</p>
+<p>m代表修改命令</p>
+</li>
+<li><p>pZxid</p>
+<p>代表当前节点下的最后一次创建的节点的命令</p>
+</li>
+<li><p>ephemeralOwner</p>
+<p>代表当前节点的所有人, 当<code>create -e</code>时才会出现. 值是创建客户端的sessionId</p>
+</li>
+</ul>
+<p>因为客户端连接会产生一个session, 如果客户端连接是zookeeper断了, 根据高可用, 客户端应该会连接一个其他的zookeeper.</p>
+<p>那么, session是否会重新新建.  不会, 前面说过, zookeeper保证单系统镜像, 不光是节点会被镜像, session也会被镜像.</p>
+<p>当客户端连接其他zookeeper的时候, 只要没有超过规定的超时时间,session都是有效的.</p>
+<p>在分布式情况下, 很可能出现多个请求同时请求创建的情况, 可能会造成节点的覆盖.</p>
+<p>使用-s可以开启节点序列, </p>
+<h2 id="zookeeper提供的功能"><a href="#zookeeper提供的功能" class="headerlink" title="zookeeper提供的功能"></a>zookeeper提供的功能</h2><ol>
+<li><p>统一配置管理</p>
+<p>节点下可以设置1m的数据, 这样不同的客户端请求获取到的数据都是同一份的.</p>
+</li>
+<li><p>分组管理</p>
+<p>根据path区分, 即使相同名称, 只要path不同就认为是不同</p>
+</li>
+<li><p>统一命名</p>
+<p>通过-s来添加序列, 使相同名称拼接一个序号达到同一格式命名的效果.</p>
+</li>
+<li><p>同步</p>
+<p>使用临时节点实现分布式锁.</p>
+</li>
+</ol>
+<p>zookeeper提供分布式协调功能, 要求他具有扩展性, 可靠性, 时序性和快速的特点.</p>
+<h3 id="扩展性"><a href="#扩展性" class="headerlink" title="扩展性"></a>扩展性</h3><h4 id="框架架构"><a href="#框架架构" class="headerlink" title="框架架构"></a>框架架构</h4><p><strong>角色</strong></p>
+<ul>
+<li>leader</li>
+<li>follower</li>
+<li>observer</li>
+</ul>
+<h4 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h4><p>使用observer方法读查询的能力.</p>
+<p>只有follower才能选举</p>
+<p>将一个zookeeper设置为observer, 只需要在配置文件里, 这一台zookeeper配置的后面加上<code>:observer</code></p>
+<h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><p>可靠性是根据快速恢复leader实现的.</p>
+<p><strong>如何保证数据的可靠可用的</strong></p>
+<p>使用最终一致性</p>
+<h4 id="Paxos算法"><a href="#Paxos算法" class="headerlink" title="Paxos算法"></a>Paxos算法</h4><p>Paxos是一个基于消息传递的一致性算法.</p>
+<p>Paxos有一个前提, 没有拜占庭将军问题. 就是说Paxos只有在一个可信的计算环境中才能成立, 这个环境是不会被入侵所破坏的.</p>
+<p><a href="https://www.douban.com/note/208430424/" target="_blank" rel="noopener">Zookeeper全解析——Paxos作为灵魂</a></p>
+<blockquote>
+<p>Paxos描述了这样一个场景，有一个叫做Paxos的小岛(Island)上面住了一批居民，岛上面所有的事情由一些特殊的人决定，他们叫做议员(Senator)。议员的总数(Senator Count)是确定的，不能更改。岛上每次环境事务的变更都需要通过一个提议(Proposal)，每个提议都有一个编号(PID)，这个编号是一直增长的，不能倒退。每个提议都需要超过半数((Senator Count)/2 +1)的议员同意才能生效。每个议员只会同意大于当前编号的提议，包括已生效的和未生效的。如果议员收到小于等于当前编号的提议，他会拒绝，并告知对方：你的提议已经有人提过了。这里的当前编号是每个议员在自己记事本上面记录的编号，他不断更新这个编号。整个议会不能保证所有议员记事本上的编号总是相同的。现在议会有一个目标：保证所有的议员对于提议都能达成一致的看法。</p>
+<p>好，现在议会开始运作，所有议员一开始记事本上面记录的编号都是0。有一个议员发了一个提议：将电费设定为1元/度。他首先看了一下记事本，嗯，当前提议编号是0，那么我的这个提议的编号就是1，于是他给所有议员发消息：1号提议，设定电费1元/度。其他议员收到消息以后查了一下记事本，哦，当前提议编号是0，这个提议可接受，于是他记录下这个提议并回复：我接受你的1号提议，同时他在记事本上记录：当前提议编号为1。发起提议的议员收到了超过半数的回复，立即给所有人发通知：1号提议生效！收到的议员会修改他的记事本，将1好提议由记录改成正式的法令，当有人问他电费为多少时，他会查看法令并告诉对方：1元/度。</p>
+<p>现在看冲突的解决：假设总共有三个议员S1-S3，S1和S2同时发起了一个提议:1号提议，设定电费。S1想设为1元/度, S2想设为2元/度。结果S3先收到了S1的提议，于是他做了和前面同样的操作。紧接着他又收到了S2的提议，结果他一查记事本，咦，这个提议的编号小于等于我的当前编号1，于是他拒绝了这个提议：对不起，这个提议先前提过了。于是S2的提议被拒绝，S1正式发布了提议: 1号提议生效。S2向S1或者S3打听并更新了1号法令的内容，然后他可以选择继续发起2号提议。</p>
+<p>好，我觉得Paxos的精华就这么多内容。现在让我们来对号入座，看看在ZK Server里面Paxos是如何得以贯彻实施的。</p>
+<p>小岛(Island)——ZK Server Cluster</p>
+<p>议员(Senator)——ZK Server</p>
+<p>提议(Proposal)——ZNode Change(Create/Delete/SetData…)</p>
+<p>提议编号(PID)——Zxid(ZooKeeper Transaction Id)</p>
+<p>正式法令——所有ZNode及其数据</p>
+<p>貌似关键的概念都能一一对应上，但是等一下，Paxos岛上的议员应该是人人平等的吧，而ZK Server好像有一个Leader的概念。没错，其实Leader的概念也应该属于Paxos范畴的。如果议员人人平等，在某种情况下会由于提议的冲突而产生一个“活锁”（所谓活锁我的理解是大家都没有死，都在动，但是一直解决不了冲突问题）。Paxos的作者Lamport在他的文章”The Part-Time Parliament“中阐述了这个问题并给出了解决方案——在所有议员中设立一个总统，只有总统有权发出提议，如果议员有自己的提议，必须发给总统并由总统来提出。好，我们又多了一个角色：总统。</p>
+<p>总统——ZK Server Leader</p>
+<p>现在我们假设总统已经选好了，下面看看ZK Server是怎么实施的。</p>
+<p>情况一：</p>
+<p>屁民甲(Client)到某个议员(ZK Server)那里询问(Get)某条法令的情况(ZNode的数据)，议员毫不犹豫的拿出他的记事本(local storage)，查阅法令并告诉他结果，同时声明：我的数据不一定是最新的。你想要最新的数据？没问题，等着，等我找总统Sync一下再告诉你。</p>
+<p>情况二：</p>
+<p>屁民乙(Client)到某个议员(ZK Server)那里要求政府归还欠他的一万元钱，议员让他在办公室等着，自己将问题反映给了总统，总统询问所有议员的意见，多数议员表示欠屁民的钱一定要还，于是总统发表声明，从国库中拿出一万元还债，国库总资产由100万变成99万。屁民乙拿到钱回去了(Client函数返回)。</p>
+<p>情况三：</p>
+<p>总统突然挂了，议员接二连三的发现联系不上总统，于是各自发表声明，推选新的总统，总统大选期间政府停业，拒绝屁民的请求。</p>
+</blockquote>
+<p><strong>情况1:</strong>因为过半生效, 所以客户端请求的数据可能是还没来得及同步的数据, 此时可以给与一个可选的同步, 如果客户端要求同步, 那么就需要同步完成再返回数据.</p>
+<p><strong>情况2:</strong>客户端请求服务端修改数据, 如果请求到follower, 那么follower要将这个请求发给leader, 然后进行过半生效. 基于活锁的考虑, follower无法发起投票, 只能向上交给leader处理.</p>
+<p><strong>情况3:</strong>需要尽快的完成选举才可以保证可靠性.</p>
+<h4 id="选举"><a href="#选举" class="headerlink" title="选举"></a>选举</h4><p>如果leader挂掉, 需要快速的完成选举尽快恢复对外的服务.</p>
+<p>选举分为两种情况:</p>
+<ol>
+<li>第一次启动集群</li>
+<li>重启集群, leader挂了</li>
+</ol>
+<p>每个zookeeper都有自己的myid, 都有一个Zxid.</p>
+<p>选举的情况下, 肯定优先选择数据最全的那个节点为leader, 如果数据一样全, 那么按照myid大的那个为leader.</p>
+<blockquote>
+<p>为什么Zxid最大的那个就是数据最全的?</p>
+<p>因为Zxid生效的前提是过半生效, 集群提供服务的前提是过半存活.</p>
+<p>如果集群继续提供服务, 那么还存活的节点中一定有一个Zxid就等于数据最全的那个.</p>
+</blockquote>
+<h3 id="Watch-监控"><a href="#Watch-监控" class="headerlink" title="Watch 监控"></a>Watch 监控</h3><p>zookeeper尽量的使各个节点之间的数据都是一样的.</p>
+<p>假设一个场景, <code>client1</code>创建了一个临时节点<code>/root/a</code>, <code>client2</code>监听这个节点.</p>
+<p>当client1断开和zookeeper的连接之后, 因为临时节点根据session创建, session结束就会销毁. client1断开后, /root/a也会被销毁. </p>
+<p>此时会产生一个事件event, 这个时间会被watch这个节点的client2收到, 产生一个回调.</p>
+<h2 id="Zookeeper-API"><a href="#Zookeeper-API" class="headerlink" title="Zookeeper API"></a>Zookeeper API</h2><p>Zookeeper有session的概念, 所以没有连接池.</p>
+<ol>
+<li>直接在maven中引入Zookeeper依赖.</li>
+<li>创建Zookeeper连接, <code>new ZooKeeper()</code>需要传入连接信息, 可以传入多个节点地址并用<code>,</code>连接. 传入session过期时间, 客户端断开连接后多久session失效. 传入一个watcher, 这个watcher与node,path无关, 只和session相关.</li>
+<li>Watcher需要实现一个process方法, 这是事件的回调, 可以根据返回的WatchedEvent做响应的处理.</li>
+<li>当收到state为SyncConnected的事件后, 表示建立连接完成.</li>
+<li>可以使用api进行节点的创建,删除,修改数据.</li>
+</ol>
+<h2 id="分布式协调"><a href="#分布式协调" class="headerlink" title="分布式协调"></a>分布式协调</h2><p>前面说过, Zookeeper是用来做分布式协调的. 那么到底可以协调什么呢?</p>
+<h3 id="分布式配置"><a href="#分布式配置" class="headerlink" title="分布式配置"></a>分布式配置</h3><p>当服务拆分的很碎的时候, 配置文件就会变得又多有繁杂, 当然可以每个服务都有一个本地的配置文件, 但是如果有一个地方要修改的时候, 需要手动的修改所有服务的每个配置文件.</p>
+<p>所以我们需要一个<code>中心</code>, 所有的服务都可以去这个中心拿配置文件.</p>
+<p>那么可以用redis, 用数据库, 为什么要用Zookeeper呢?</p>
+<p>使用redis或数据库就难免绕开一个问题: 要起一个线程监听配置是否发生改变.</p>
+<p>而使用Zookeeper, Zookeeper提供了watch的功能, 可以实现回调. 当配置发生改变的时候会调用回调方法, 自然就不用起一个线程去时不时的监听了. 而且回调得到的配置修改生效时间要比轮询的时间间隔短.</p>
+<h3 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h3><p>加入有两个服务器, 想要同步执行一些东西. 这两个不能同时执行, 但是因为不在同一台机器上, 所以java基于内存的锁就不能用了, synchronized,lock都不好使, 所以这个锁就只能放到这两台机器外部. 无论是什么形式, redis还是数据库或者Zookeeper都可以,只要两个服务都能访问到就可以.</p>
+<p>Zookeeper实现分布式锁需要实现一些特定的需求:</p>
+<ol>
+<li><p>争抢锁, 只有一个人能获得锁</p>
+</li>
+<li><p>获得锁的人出问题,锁可以自动释放 (临时节点 session)</p>
+</li>
+<li><p>成功获得锁的人可以释放锁</p>
+</li>
+<li><p>锁被释放后, 别人怎么可以感知到又可以争夺锁了</p>
+<ol>
+<li><p>主动轮询, 类似心跳的做法, 每隔一个时间间隔查询. </p>
+<p>弊端: </p>
+<p>获得锁会和上一次解锁之间有一个延迟, 这个延迟小于时间间隔.</p>
+<p>服务器压力大, 如果有很多争抢锁, 每隔时间间隔都会有这么多请求去查询这个锁.</p>
+</li>
+<li><p>watch, 可以解决延迟问题, 当前一个释放锁会回调通知其他请求过来获取锁, 取消了轮询查询锁的请求.</p>
+<p>弊端: </p>
+<p>锁失效的时候, zookeeper会回调所有watch的客户端, 一瞬间又是很多请求过来抢锁, 服务器瞬时压力依然很大.</p>
+</li>
+<li><p>watch + sequence: 使用watch加序号的方式, 后一个watch前一个节点, 这些序号都在同一个父节点下面. 当前一个释放后, 后一个得到回调, 而且只有一个得到回调.</p>
+<p>这就很像一个链式结构了, 那么如果链表中间断了呢?</p>
+<p>如果链表中间断了, 那么他后面的一个会收到这个事件, 后面一个醒来, 醒来后获取这个列表, 排序看看自己是不是第一个, 如果不是第一个, 就继续排在队里, 这样就把这个链表又接上了.</p>
+</li>
+</ol>
+</li>
+</ol>
+
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《Zookeeper》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2020/07/23/2020-07-23/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                echi1995
+            </a> 采用
+            <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2020/07/28/2020-07-28/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="Spring Cloud">
+                        
+                        <span class="card-title">Spring Cloud</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Spring Cloud 微服务概述Spring Cloud技术点
+Eureka: 服务注册于发现, 用于服务管理
+Feign: web调用客户端, 能够简化HTTP接口的调用
+Ribbon: 基于客户端的负载均衡
+Hystrix: 熔断降
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-28
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                    学而不思则罔
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/Zookeeper/" target="_blank">
+                        <span class="chip bg-color">Zookeeper</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2020/07/22/2020-07-22/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Redis(三)">
+                        
+                        <span class="card-title">Redis(三)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Redis(三)Redis集群单机出现的问题前面讲了redis单机情况下的配置和持久化, 但是单机情况下有一些性能上的障碍是绕不过去的.
+
+单机时, redis故障服务停止
+单机容量有限
+单机计算压力大
+
+AKF理论为了解决redis单机的
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-07-22
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/学而不思则罔/" class="post-category" target="_blank">
+                                    学而不思则罔
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/redis/" target="_blank">
+                        <span class="chip bg-color">redis</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+
+    <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&nbsp;&copy;<a href="http://echi1995.github.io" target="_blank">echi1995</a>&nbsp;基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a>&nbsp;的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>&nbsp;主题搭建
+            <br>
+            
+            &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">122.7k</span>&nbsp;字
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="fa fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fa fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            <br>
+            <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+            <script>
+                var now = new Date();
+
+                function createtime() {
+                    var grt = new Date("06/28/2019 00:00:00");
+                    now.setTime(now.getTime() + 250);
+                    days = (now - grt) / 1000 / 60 / 60 / 24;
+                    dnum = Math.floor(days);
+                    hours = (now - grt) / 1000 / 60 / 60 - (24 * dnum);
+                    hnum = Math.floor(hours);
+                    if (String(hnum).length == 1) {
+                        hnum = "0" + hnum;
+                    }
+                    minutes = (now - grt) / 1000 / 60 - (24 * 60 * dnum) - (60 * hnum);
+                    mnum = Math.floor(minutes);
+                    if (String(mnum).length == 1) {
+                        mnum = "0" + mnum;
+                    }
+                    seconds = (now - grt) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+                    snum = Math.round(seconds);
+                    if (String(snum).length == 1) {
+                        snum = "0" + snum;
+                    }
+                    document.getElementById("timeDate").innerHTML = "本站已安全运行 " + dnum + " 天 ";
+                    document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+                }
+                setInterval("createtime()", 250);
+            </script>
+            
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/echi1995" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fa fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:echi1995@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=634626989" class="tooltipped" data-tooltip="QQ联系我: 634626989" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    
+    <script src="/libs/others/clicklove.js"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i["DaoVoiceObject"] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            a.charset = "utf-8";
+            m.parentNode.insertBefore(a, m)
+        })(window, document, "script", ('https:' == document.location.protocol ? 'https:' : 'http:') +
+            "//widget.daovoice.io/widget/6984b559.js", "daovoice")
+        daovoice('init', {
+            app_id: ""
+        });
+        daovoice('update');
+    </script>
+    
+
+    
+
+    
+
+    
+    <script type="text/javascript" src="/libs/background/ribbon-dynamic.js"></script>
+    
+
+</body>
+
+</html>

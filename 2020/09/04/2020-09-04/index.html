@@ -1,0 +1,1194 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="Docker(二), 扣哥哥的博客">
+    <meta name="description" content="Docker(二)上一篇简单认识了Docker，并且基于已有的镜像运行了容器。
+Docker构建镜像既然有官方提供的镜像，那么自己也可以进行docker镜像的制作。
+DockerFile
+DockerFile是一个包含用于组合镜像的命令的文">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Docker(二) | 扣哥哥的博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+    
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">扣哥哥的博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">扣哥哥的博客</div>
+        <div class="logo-desc">
+            
+            ————一个尚未脱离低级趣味,喜好毒鸡汤的人
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/11.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        Docker(二)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/java/" target="_blank">
+                                <span class="chip bg-color">java</span>
+                            </a>
+                        
+                            <a href="/tags/Docker/" target="_blank">
+                                <span class="chip bg-color">Docker</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/思而不学则殆/" class="post-category" target="_blank">
+                                思而不学则殆
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2020-09-04
+                </div>
+
+                
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
+                        2.5k
+                    </div>
+                    
+
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                        9 分
+                    </div>
+                    
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="Docker-二"><a href="#Docker-二" class="headerlink" title="Docker(二)"></a>Docker(二)</h1><p>上一篇简单认识了Docker，并且基于已有的镜像运行了容器。</p>
+<h2 id="Docker构建镜像"><a href="#Docker构建镜像" class="headerlink" title="Docker构建镜像"></a>Docker构建镜像</h2><p>既然有官方提供的镜像，那么自己也可以进行docker镜像的制作。</p>
+<h3 id="DockerFile"><a href="#DockerFile" class="headerlink" title="DockerFile"></a>DockerFile</h3><ul>
+<li>DockerFile是一个包含用于组合镜像的命令的文本文档</li>
+<li>Docker通过读取DockerFile中的指令按步自动生成镜像</li>
+<li>docker build -t 机构/镜像名 &lt;:tags&gt; DockerFile目录    对dockerFile进行解析生成镜像</li>
+</ul>
+<h4 id="DockerFIle常用命令"><a href="#DockerFIle常用命令" class="headerlink" title="DockerFIle常用命令"></a>DockerFIle常用命令</h4><ul>
+<li>FROM tomcat:lastest  设置基准镜像</li>
+<li>MAINTAINER echi.com 维护人</li>
+<li>WORKDIR /usr/local/tomcat/webapps  切换工作目录</li>
+<li>ADD docker-web ./docker-web  将制定的文件或目录复制到镜像的指定目录下</li>
+</ul>
+<h3 id="构建一个自己的镜像"><a href="#构建一个自己的镜像" class="headerlink" title="构建一个自己的镜像"></a>构建一个自己的镜像</h3><p>首先创建一个工作目录</p>
+<blockquote>
+<p>mkdir /usr/images/firstDockerFile</p>
+</blockquote>
+<p>在工作目录中创建要放入tomcat中的项目</p>
+<blockquote>
+<p>mkdir docker-web</p>
+<p>echo “</p><h1>my first docker file index</h1>&gt;” &gt; docker-web/index.html<p></p>
+</blockquote>
+<p>创建Dockerfile</p>
+<blockquote>
+<p>vi Dockerfile</p>
+<p>FROM tomcat:latest</p>
+<p>MAINTAINER echi</p>
+<p>#因为是基于tomcat的项目，所以默认工作路径定在webapps下</p>
+<p>WORKDIR /usr/local/tomcat/webapps</p>
+<p>#将docker-web整个复制到工作目录下</p>
+<p>ADD docker-web ./docker-web</p>
+</blockquote>
+<p>完成Dockerfile和项目后，开始构建镜像。</p>
+<blockquote>
+<p>docker image -t echi/mywebapp:1.0 .</p>
+</blockquote>
+<p>因为命令是直接在/usr/images/firstDockerFile下执行的，所以可以用<code>.</code>来代替路径。 此处也可以用绝对路径。</p>
+<p>命令执行完成后，使用docker images就可以看到构建成功的镜像了。</p>
+<h2 id="镜像分层概念-layer"><a href="#镜像分层概念-layer" class="headerlink" title="镜像分层概念(layer)"></a>镜像分层概念(layer)</h2><p>首先谈谈分层概念， 镜像和容器的分层比较好理解，镜像就类似于系统光盘，是只读的，容器就类似于使用光盘装好的系统，可读可写。</p>
+<p>在镜像内部也有分层的概念。</p>
+<p>在上一步构建镜像的时候就有体现，在docker build的时候，会显示出一些步骤。</p>
+<p>在每一步之后都会显示出一个容器id， 这是docker产生的临时容器。 </p>
+<p>docker镜像构建的时候，每一步都会产生一个临时容器，快照性质的容器，也是一个存档。</p>
+<p>这个设计的优势在于， 如果我们想要部署的是docker-web02这个项目，那么前几步的构建就是已经做过的，所有不需要重新处理。</p>
+<p>所以只需要在第三步的基础上再进行一次第四步即可。这样就有效的节省了系统资源。</p>
+<h2 id="Dockerfile基础命令"><a href="#Dockerfile基础命令" class="headerlink" title="Dockerfile基础命令"></a>Dockerfile基础命令</h2><h3 id="FROM-基于基准镜像"><a href="#FROM-基于基准镜像" class="headerlink" title="FROM - 基于基准镜像"></a>FROM - 基于基准镜像</h3><ul>
+<li>FROM centos 制作基准镜像（基于centos：latest）</li>
+<li>FROM scratch 不依赖任何肌醇镜像base image</li>
+<li>FROM tomcat</li>
+<li>尽量使用官方提供的BaseImage</li>
+</ul>
+<h3 id="LABLE-amp-MAINTAINER-说明信息"><a href="#LABLE-amp-MAINTAINER-说明信息" class="headerlink" title="LABLE &amp; MAINTAINER - 说明信息"></a>LABLE &amp; MAINTAINER - 说明信息</h3><ul>
+<li>MAINTAINER 维护人或维护机构信息</li>
+<li>LABLE version = “1.0”</li>
+<li>LABLE description = “echi1995.com first docker image”</li>
+</ul>
+<p>lable并不会产生作用，只是放在文件中的描述信息</p>
+<h3 id="WORKDIR-设置工作目录"><a href="#WORKDIR-设置工作目录" class="headerlink" title="WORKDIR - 设置工作目录"></a>WORKDIR - 设置工作目录</h3><ul>
+<li>WORKDIR /usr/local</li>
+<li>WORKDIR /usr/local/newdir 自动创建不存在的目录</li>
+<li>尽量使用绝对路径</li>
+</ul>
+<h3 id="ADD-amp-COPY-复制文件"><a href="#ADD-amp-COPY-复制文件" class="headerlink" title="ADD &amp; COPY - 复制文件"></a>ADD &amp; COPY - 复制文件</h3><ul>
+<li>ADD hello / 复制到根路径</li>
+<li>ADD test.tar.gz / 添加根目录并解压</li>
+<li>ADD 除了复制，还具备添加远程文件功能</li>
+</ul>
+<h3 id="ENV-设置环境常量"><a href="#ENV-设置环境常量" class="headerlink" title="ENV - 设置环境常量"></a>ENV - 设置环境常量</h3><ul>
+<li>ENV JAVA_HOME /usr/local/openjdk8</li>
+<li>RUN ${JAVA_HOME}/bin/java -jar test.jar</li>
+<li>尽量使用环境常量，可提高程序维护性</li>
+</ul>
+<h2 id="Dockerfile运行指令"><a href="#Dockerfile运行指令" class="headerlink" title="Dockerfile运行指令"></a>Dockerfile运行指令</h2><ul>
+<li>RUN ： 在Build构建时执行命令</li>
+<li>ENTRYPOINT ： 容器启动时执行的命令</li>
+<li>CMD： 容器启动后执行默认的命令或参数</li>
+</ul>
+<h3 id="RUN-构建时运行"><a href="#RUN-构建时运行" class="headerlink" title="RUN - 构建时运行"></a>RUN - 构建时运行</h3><ul>
+<li>RUN yum install -y vim ： Shell命令格式</li>
+<li>RUN [“yum”, “install”, “-y”, “vim”] ： Exec命令格式</li>
+</ul>
+<p>为什么要有两种命令格式呢？</p>
+<p>使用Shell执行时，当前shell是父进程，生成一个子shell进程。</p>
+<p>在子shell中执行脚本，脚本执行完毕，退出子shell，回到当前shell。</p>
+<p>如果使用Exec方式，会用Exec进程替换当前进程，并且保持PID不变。</p>
+<p>执行完毕直接退出，并不会退回之前的进程环境。</p>
+<h3 id="ENTRYPOINT启动命令"><a href="#ENTRYPOINT启动命令" class="headerlink" title="ENTRYPOINT启动命令"></a>ENTRYPOINT启动命令</h3><ul>
+<li>ENTRYPOINT（入口点）用于在容器启动时执行命令</li>
+<li>Dockerfile中只有最后一个ENTRYPOINT会被执行</li>
+<li>ENTRYPOINT[“ps”] 推荐使用Exec格式</li>
+</ul>
+<h3 id="CMD默认命令"><a href="#CMD默认命令" class="headerlink" title="CMD默认命令"></a>CMD默认命令</h3><ul>
+<li>CMD用于设置默认执行的命令</li>
+<li>如Dockerfile中出现多个CMD，则只有最后一个被执行</li>
+<li>如容器启动时附加指令，则CMD被忽略</li>
+<li>CMD[“ps”, “-ef”] 推荐使用Exec格式</li>
+</ul>
+<h2 id="容器间Link单向通信"><a href="#容器间Link单向通信" class="headerlink" title="容器间Link单向通信"></a>容器间Link单向通信</h2><p>在前面都是单个容器内部进行操作，但是有时候往往需要容器之间进行通信。</p>
+<p><img src="/2020/09/04/2020-09-04/%E5%AE%B9%E5%99%A8%E9%97%B4%E5%8D%95%E5%90%91%E9%80%9A%E4%BF%A1.jpg" alt></p>
+<p>在每个Docker环境中，启动的容器都会分配一个虚拟ip。 这个ip无法访问，只是在docker内部彼此通信的标识。</p>
+<p>当两个容器被创建后天然会拥有自己的虚拟ip，而且在docker内部这两个虚拟ip之间是彼此互联的。</p>
+<p>但是如果容器之间使用虚拟ip进行通信是有问题的， 因为在docker中创建容器非常容易，每创建一个容器都会新分配一个ip地址。</p>
+<p>比如随着时间推移，MySQL容器 172.17.0.24不再使用，而是换成了172.17.0.28，但是24是已经配置在tomcat中。这时只能通过修改tomcat容器中的配置文件来重新指向新的MySQL容器。</p>
+<p>这样如果容器数量少则还好，如果部署数量过多，上百个tomcat容器指向一个MySQL容器，如果此时发生改变，要修改的花费是不可接受的。</p>
+<p>因此可以给容器起个名字，连接的时候不要再直接去连接虚拟ip，而是通过名称去连接，这样docker就可以自动的根据名称连接到对应的容器上。</p>
+<blockquote>
+<p>#给容器起个名称</p>
+<p>docker run -d –name web tomcat</p>
+<p>#这样就给tomcat这个容器起了个名字叫web</p>
+<p>docker run -d –name database mysql</p>
+<p>#查看docker容器的ip</p>
+<p>docker inspect 容器id</p>
+<p>#在输出的一大串信息中，找到NetworkSettings这一项，其中的IPAddress就是docker容器的虚拟ip</p>
+<p>#如果此时我们进入tomcat容器，去pingMySQL容器的虚拟ip是可以ping的通，但是ping database是不通的，因为还没有关联</p>
+<p>#要关联很简单，移除tomcat容器，在创建的时候加上一个参数即可</p>
+<p>docker run -d –name web –link database tomcat</p>
+<p>#这样就添加上database的名称到tomcat中，在tomcat容器中也可以使用databaseping的通MySQL</p>
+</blockquote>
+<h2 id="容器间Bridge网桥双向通信"><a href="#容器间Bridge网桥双向通信" class="headerlink" title="容器间Bridge网桥双向通信"></a>容器间Bridge网桥双向通信</h2><p>所谓网桥就是一个虚拟的网络桥接，是docker环境与外界通信必不可少的组件。但是这个网桥组件是完全虚拟出来的一个组件，网桥的主要用途就是让docker容器与外界进行通信，网桥把容器发出的数据包通过网桥传输给外部的物理网卡，通过物理网卡与外部的网络进行通信。</p>
+<p>网桥还可以对容器从网络层面进行分组，将一组容器绑定在同一个网桥上，那么这几个容器就可以进行互联互通。</p>
+<blockquote>
+<p>#列出docker网络信息</p>
+<p>docker network ls </p>
+<p>#在输出中可以看到有一个bridge，这是默认网桥</p>
+<p>docker network create -d bridge my-bridge</p>
+<p>#再次查看，可以看到新出现了一个叫做my-bridge的网桥。上句中 bridge是标识创建的是网桥。</p>
+<p>#将web绑定到新创建的网桥上</p>
+<p>#绑定在同一个网桥上的容器可以进行通信</p>
+<p>docker network connect my-bridge web</p>
+</blockquote>
+<h3 id="网桥实现原理"><a href="#网桥实现原理" class="headerlink" title="网桥实现原理"></a>网桥实现原理</h3><p>当创建一个网桥，docker就会在linux内部创建一个虚拟网卡，这个虚拟网卡也承担了网关的作用。</p>
+<p>但是虚拟网卡毕竟是虚拟出来的，与外界通信的时候仍需要通过物理网卡转换，再通过物理网卡接受返回的数据包。</p>
+<h2 id="Volume容器间共享数据"><a href="#Volume容器间共享数据" class="headerlink" title="Volume容器间共享数据"></a>Volume容器间共享数据</h2><p>当容器间需要进行数据共享的时候，比如部署了多个tomcat容器，提供相同的功能。那么可能会有一些静态资源需要存放在容器中。 </p>
+<p>如果每个容器都维护自己的静态文件，那么当静态文件需要改动的时候只能一个一个去改。</p>
+<p>因此可以通过共享数据的方式，使多个容器之间共享相同的文件。</p>
+<p><img src="/2020/09/04/2020-09-04/%E5%AE%B9%E5%99%A8%E9%97%B4%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB.jpg" alt></p>
+<h3 id="通过设置-v挂在宿主机目录"><a href="#通过设置-v挂在宿主机目录" class="headerlink" title="通过设置-v挂在宿主机目录"></a>通过设置-v挂在宿主机目录</h3><ul>
+<li>docker run –name 容器名 -v  物理机路径:容器内挂在路径 镜像名</li>
+</ul>
+<h3 id="通过–volumes-from共享容器内挂载点"><a href="#通过–volumes-from共享容器内挂载点" class="headerlink" title="通过–volumes-from共享容器内挂载点"></a>通过–volumes-from共享容器内挂载点</h3><ul>
+<li>创建共享容器</li>
+<li>docker create –name 挂载点名字-v 物理机路径:容器内挂在路径 镜像名/bin/true    #创建挂载点</li>
+<li>docker run –name 容器名 –volumes-from 挂载点名字 镜像名  # 使用挂载点</li>
+</ul>
+<p>两种方法其实都是一样的，只是通过–volumes-from创建的挂载点不用重复输入路径。</p>
+<h2 id="DockerCompose"><a href="#DockerCompose" class="headerlink" title="DockerCompose"></a>DockerCompose</h2><h3 id="多容器部署问题"><a href="#多容器部署问题" class="headerlink" title="多容器部署问题"></a>多容器部署问题</h3><p>如果需要部署docker环境，可能会需要多个docker容器协同工作，比如通过nginx负载均衡，通过tomcat处理请求，通过mysql持久化数据。那么如果上线的时候就需要启动多个docker，需要很多命令才能发布，那有没有什么方法可以简化这个操作呢？</p>
+<p>DockerCompose可以通过脚本开安装这些容器，同时配置好容器间的关系和容器需要的配置文件。</p>
+<h3 id="DockerCompose介绍"><a href="#DockerCompose介绍" class="headerlink" title="DockerCompose介绍"></a>DockerCompose介绍</h3><ul>
+<li>Docker Compose单机多容器部署工具</li>
+<li>通过yml文件定义多容器如何部署</li>
+<li>WIN/MAC 默认提供DOcker Compose，Linux需安装</li>
+</ul>
+<p><a href="https://docs.docker.com/compose/" target="_blank" rel="noopener">docker compose官网</a></p>
+<h3 id="安装Docker-Compose"><a href="#安装Docker-Compose" class="headerlink" title="安装Docker Compose"></a>安装Docker Compose</h3><p>直接进入docker compose中，打开install页面。</p>
+<p><a href="https://docs.docker.com/compose/install/" target="_blank" rel="noopener">https://docs.docker.com/compose/install/</a></p>
+<p>下载docker compose</p>
+<pre><code>sudo curl -L &quot;https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)&quot; -o /usr/local/bin/docker-compose</code></pre><p>给docker compose授权</p>
+<pre><code>sudo chmod +x /usr/local/bin/docker-compose</code></pre><h3 id="QuickStart-使用DockerCompose搭建WordPress"><a href="#QuickStart-使用DockerCompose搭建WordPress" class="headerlink" title="QuickStart 使用DockerCompose搭建WordPress"></a>QuickStart 使用DockerCompose搭建WordPress</h3><p><a href="https://docs.docker.com/compose/wordpress/" target="_blank" rel="noopener">https://docs.docker.com/compose/wordpress/</a></p>
+<ul>
+<li><p>根据文档，首先创建一个目录，并创建<code>docker-compose.yml</code>文件。</p>
+</li>
+<li><p>并将文档中的内容粘贴到docker-compose.yml中</p>
+</li>
+<li><p>使用<code>docker-compose up -d</code>构建项目</p>
+</li>
+<li><p>如果要关闭，则可以使用docker-compose down</p>
+</li>
+</ul>
+
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《Docker(二)》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2020/09/04/2020-09-04/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                echi1995
+            </a> 采用
+            <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2020/09/04/2020-09-04/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Docker(二)">
+                        
+                        <span class="card-title">Docker(二)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Docker(二)上一篇简单认识了Docker，并且基于已有的镜像运行了容器。
+Docker构建镜像既然有官方提供的镜像，那么自己也可以进行docker镜像的制作。
+DockerFile
+DockerFile是一个包含用于组合镜像的命令的文
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-09-04
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/思而不学则殆/" class="post-category" target="_blank">
+                                    思而不学则殆
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/Docker/" target="_blank">
+                        <span class="chip bg-color">Docker</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2020/09/03/2020-09-03/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="Docker(一)">
+                        
+                        <span class="card-title">Docker(一)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Docker(一)Docker是一个容器技术，容器不仅仅只有Docker，但Docker一定是使用人数最多的容器技术。
+和Docker一样属于容器技术的还有Kubernetes，因为其单词太长，也被简称为k8s。
+Docker的发展史Doc
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-09-03
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/思而不学则殆/" class="post-category" target="_blank">
+                                    思而不学则殆
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/Docker/" target="_blank">
+                        <span class="chip bg-color">Docker</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+
+    <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&nbsp;&copy;<a href="http://echi1995.github.io" target="_blank">echi1995</a>&nbsp;基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a>&nbsp;的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>&nbsp;主题搭建
+            <br>
+            
+            &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">122.7k</span>&nbsp;字
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="fa fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fa fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            <br>
+            <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+            <script>
+                var now = new Date();
+
+                function createtime() {
+                    var grt = new Date("06/28/2019 00:00:00");
+                    now.setTime(now.getTime() + 250);
+                    days = (now - grt) / 1000 / 60 / 60 / 24;
+                    dnum = Math.floor(days);
+                    hours = (now - grt) / 1000 / 60 / 60 - (24 * dnum);
+                    hnum = Math.floor(hours);
+                    if (String(hnum).length == 1) {
+                        hnum = "0" + hnum;
+                    }
+                    minutes = (now - grt) / 1000 / 60 - (24 * 60 * dnum) - (60 * hnum);
+                    mnum = Math.floor(minutes);
+                    if (String(mnum).length == 1) {
+                        mnum = "0" + mnum;
+                    }
+                    seconds = (now - grt) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+                    snum = Math.round(seconds);
+                    if (String(snum).length == 1) {
+                        snum = "0" + snum;
+                    }
+                    document.getElementById("timeDate").innerHTML = "本站已安全运行 " + dnum + " 天 ";
+                    document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+                }
+                setInterval("createtime()", 250);
+            </script>
+            
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/echi1995" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fa fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:echi1995@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=634626989" class="tooltipped" data-tooltip="QQ联系我: 634626989" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    
+    <script src="/libs/others/clicklove.js"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i["DaoVoiceObject"] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            a.charset = "utf-8";
+            m.parentNode.insertBefore(a, m)
+        })(window, document, "script", ('https:' == document.location.protocol ? 'https:' : 'http:') +
+            "//widget.daovoice.io/widget/6984b559.js", "daovoice")
+        daovoice('init', {
+            app_id: ""
+        });
+        daovoice('update');
+    </script>
+    
+
+    
+
+    
+
+    
+    <script type="text/javascript" src="/libs/background/ribbon-dynamic.js"></script>
+    
+
+</body>
+
+</html>
