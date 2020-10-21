@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>2020.8-9月 面试整理(Java基础篇)</title>
+      <link href="/2020/09/04/2020-10-21/"/>
+      <url>/2020/09/04/2020-10-21/</url>
+      
+        <content type="html"><![CDATA[<p>最近很久没有更新博客，在8-9月这个节骨眼上大量的面试。</p><p>最近的学习重心放在了算法上，力扣上的题也差不多做了三百道，周赛也是期期不落。</p><p>最近刚入职新公司，还在熟悉环境，就先整理一下这一个月左右的面试题吧。</p><p>一个来月的面试也从刚开始的投简历也没人问，到后来的逐渐有一些大公司的面试邀请。先是发现有一家公司要求docker，花了几天时间把docker全面的看了一下写在简历上，发现逐渐多了一些公司找我。又将算法写在简历上，回复我的公司更多了。</p><p>我比较习惯拿纸笔，在纸上边写边聊，即使是电话面试，我也会在纸上写写画画帮助自己梳理思路。有时语言上沟通不太清楚的事，画个图，指指点点圈圈画画就给面试官聊清楚了。</p><p>比较有意思的是叮咚买菜，叮咚买菜的招聘人员看到我的自我介绍有熟悉算法，要求我说出数组二分查找所经历的各个元素，限时15分钟。 也是因为很久都没写二分查找，就直接按照length/2来回答，没有对mid进行+1，-1的操作，因此直接挂在boss直聘的聊天上。</p><p>这也是给我一个教训，给了15分钟时间，我可以不急着回答，用这段时间去写一下代码，多跑几个测试用例，拿出执行结果丢给招聘者。虽然也不一定能通过叮咚买菜的后续面试，但是应该会有一个面试机会。</p><h1 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h1><p>Java基础自然是重中之重， 记得今年年初的时候，面试酷家乐。</p><p>当然惨败，得到的评价是对于接口设计还算优秀，但基础过于薄弱。</p><p>当时主要挂在两个问题上：</p><ol><li><p>Java中判断两个对象相等是怎么做的</p><p>当时面试经验还少，被问到这么简单的问题脑子一通浆糊，大体上知道可以直接比较内存地址，equals()方法，但是答得很差。</p><p>后来面试永辉的时候也问到了这个问题，这时就很明确的分析了比较内存地址， equals()方法，hashcode()方法。面试官也表示比较满意。</p></li><li><p>Java中的序列化，对象序列化，父类中的private属性会怎么样</p><p>这个问题是真的不知道，到现在也不知道。</p><p>java的序列化本身用的就少，即使是之后去网上搜索了相关博客也没有看懂。</p><p>后面自己去试了一下，子类序列化父类中private的属性也会序列化，和网上博客的并不相同，所以这个问题先掠过。</p></li></ol><p>在面试中，java基础自然是经常被问到，最常问到的还是最被讲烂的HashMap。</p><h4 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h4><p>容器这边主要还是聊的HashMap，捎带一些同步容器的内容。</p><p>HashMap主要还是讲到它的结构，以及1.7-&gt;1.8的改动。</p><p>为什么不是线程安全的，1.8头插变尾插为什么还是线程不安全。</p><p>扩容条件，链表变红黑树条件，以及有次跟面试官聊到红黑树的生成概率，提到注释里一长串的0，会心一笑。</p><p>还问到一个 如何从list中删除元素。</p><pre class=" language-java"><code class="language-java"><span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> list<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">{</span>    list<span class="token punctuation">.</span><span class="token function">remove</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre><p>这种方式和iterater都不是移除的正确方法，因为将下标1的元素移除后，原下标2就到了新的下标1，而i已经跳到了2。</p><h4 id="JUC包"><a href="#JUC包" class="headerlink" title="JUC包"></a>JUC包</h4><p>一般都涉及到了JUC这个包。</p><p>会问问这个包里大概有什么内容，主要会聊聊锁，同步容器，阻塞队列。</p><p>最常问的还是<code>线程池的七大参数</code>，以及<code>线程池的工作原理</code>。</p><p>这部分虽然篇幅不多，但是在面试中聊的很多，不是不重要，而是全都重要。</p><p>和永辉聊到了乐观锁和悲观锁，一开始我只知道他的概念。经过面试官的点拨后，我意识到他们之间的特点。</p><p>乐观锁总是尝试性的去获取，悲观锁一上来就会去做lock操作。</p><h4 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h4><p>我记得有一场面试的笔试题，最后一题是手写一个死锁。 当时就很随意的写了一个最经典的死锁模型。</p><p>后面跟面试官聊的时候提到，平常工作中不太会犯这种低级错误。</p><p>面试官跟我说，<strong>java内存中的锁互相等待只是一种模型，内存中的锁互相争抢可能会演变成系统间互相等待对方的消息导致死锁。</strong></p><p>这个给我印象尤为深刻，也让我有了死锁不仅仅是java的一个概念，而是一个工作中全局的概念，理解了微服务中的断路器。</p><h4 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h4><p>关于线程，我们都知道怎么启动一个新线程，要么直接new Thread，要么启动线程池。</p><p>但是在面试躺平的时候，面试官问我<code>如何停止一个线程</code>。这个问题是从来没有考虑过的。</p><p>比如直接启动一个main()方法，当main()执行结束，main线程也就停止了。</p><p>因此我直接跟面试官说，当它要做的事结束了，线程就停止了，或者使用wait()方法 sleep()方法，但是面试官要的是停止而不是暂停。</p><p>而后我又思考了一下，如果线程卡住了，需要外部的力量来停止他，这时我没了办法，我知道线程有个stop()方法，但是并不安全，直接杀死这个进程？也不是一个好的方式。</p><p>面试官对我这两种方法都不满意，在那之后我在网上查询，发现有个<code>interrupt()</code>方法，由这个方法进行停止线程。</p><p>这就类似于，stop()方法类似于 kill -9，而interrupt()方法类似于直接kill，程序并不会马上停止，而是以一种舒缓的方式自己停止自己。</p><p>关于线程，还会聊到<code>ThreadLocal</code>，具体的就是ThreadLocal是一个map，将线程名和变量进行关联，线程取用的时候取到的是自己的线程保存的那个值。</p><p>关于ThreadLocal总是觉得面试官还有一些想问的，但是我水平太菜，领会不到面试官想问的是什么</p><p>聊到线程，绕不过去的就是<code>线程安全</code>。</p><p>关于线程安全，上面的JUC中也有涉及，这里就提一下<code>volatile</code>和<code>synchronized</code>这两个关键字。</p><p>volatile用来保证变量在内存中的可见性，也保证指令不会发生重排序。具体内容有已经写了更详细的文章。</p><p>synchronized聊的主要是锁升级机制，得益于面试前几天看的一篇java12新内容，得知偏向锁要在java12进行移除，好像触动了面试官的盲点。主要问到了锁升级是怎么做的，升级的过程。</p><h4 id="Stream"><a href="#Stream" class="headerlink" title="Stream"></a>Stream</h4><p>java8中的stream真是一个非常实用的功能，给我提供了一个不算简单的面试题。</p><p>parallelStream是并行流处理这个很简单，那么对他要处理的这个列表有什么要求呢？</p><p>实际上并不难，既然是多线程并行的处理，那么就要保证线程安全，会要求这个列表是线程安全的容器，而且因为是多线程的处理，无法控制哪个线程优先工作，因此处理完的元素顺序也是不确定的。</p><p>还稍微聊了一下Optional这个类，因为本身比较简单，也就是随口一问。</p><h4 id="伪共享"><a href="#伪共享" class="headerlink" title="伪共享"></a>伪共享</h4><p>这个应该是碰巧答对的，估计面试官是听我讲到volatile防止指令重排序偶然想到的。</p><p>听到这个词的时候我感觉很耳熟，好像在哪听过，但是又不确定。</p><p>因此我先跟面试官问了一下，你说的这个词在我这里可能不叫这个名字，他是不是<code>缓存行对齐</code>。</p><p>这里给我两个启发，</p><ol><li>有的时候面试官问的问题答不上来不是不知道，而是双方叫法不同。</li><li>当问题听不懂，或者不清楚的时候可以向面试官发问，以引导面试官提供更多信息引导回答。</li></ol><p>可能这个词确实两边叫法不同，面试官对我的回答还是很满意的。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学而不思则罔 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> java </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Docker(二)</title>
       <link href="/2020/09/04/2020-09-04/"/>
       <url>/2020/09/04/2020-09-04/</url>
